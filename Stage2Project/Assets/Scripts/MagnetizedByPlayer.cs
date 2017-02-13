@@ -36,4 +36,9 @@ public class MagnetizedByPlayer : MonoBehaviour
             }
         }		
 	}
+
+    public Type getMagnetType()
+    {
+        return MagnetizeType;
+    }
 }
