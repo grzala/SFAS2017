@@ -12,7 +12,13 @@ public class GameManager : MonoBehaviour
     private GameObject [] SpawnPrefabs;
 
     [SerializeField]
+    private GameObject BulletPrefab;
+
+    [SerializeField]
     private Player PlayerPrefab;
+
+    [SerializeField]
+    private Player player;
 
     [SerializeField]
     private Arena Arena;
@@ -76,7 +82,7 @@ public class GameManager : MonoBehaviour
 
 			if (Input.GetButtonDown("MouseClick")) {
 
-				Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);//Input.mousePosition);
+				Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition); //Input.mousePosition);
 				Debug.DrawRay(ray.origin, ray.direction * 1000, Color.yellow);
 
 				RaycastHit hit;
@@ -88,29 +94,23 @@ public class GameManager : MonoBehaviour
                         MagnetizedByPlayer child = childrenCubes[i];
                         if (child.getMagnetType() == MagnetizedByPlayer.Type.Attract)
                         {
-                            GameObject.Destroy(child.gameObject);
+                            //GameObject.Destroy(child.gameObject);
                             break;
                         }
                     }
 
+                    Vector2 shootAngle = new Vector2(hit.point.x - mPlayer.transform.position.x, hit.point.z - mPlayer.transform.position.z);
+                    float angle = Mathf.Atan2(shootAngle.y, shootAngle.x);
 
-					int indexToSpawn = 0;
-                    GameObject spawnObject = SpawnPrefabs[indexToSpawn];
-					GameObject spawnedInstance = Instantiate(spawnObject);
+                    mPlayer.shoot(angle);
 
-
-                    float height = spawnedInstance.GetComponent<Collider>().bounds.size.y;
-                    Vector3 pos = new Vector3(hit.point.x, hit.point.y + height / 2, hit.point.z);
-                    spawnedInstance.transform.position = pos;
-
-                    spawnedInstance.transform.parent = transform; 
 				}
 
             }
 
             //update HUD
-            HUD hud = GameObject.Find("/HUD").GetComponent<HUD>();
-            hud.setCubes(childrenCubes.Count);
+            //HUD hud = GameObject.Find("/HUD").GetComponent<HUD>();
+            //hud.setCubes(childrenCubes.Count);
 
 			/*
                 mNextSpawn -= Time.deltaTime;

@@ -7,6 +7,10 @@ public class Player : MonoBehaviour
 {
     [SerializeField]
 	private float Speed;
+
+    [SerializeField]
+    private GameObject BulletPrefab;
+
 	private const float MAX_SPEED = 1000;
 
     private Rigidbody mBody;
@@ -55,6 +59,28 @@ public class Player : MonoBehaviour
 			Vector3 newvec = new Vector3(newvel.x, vec.y, newvel.y);
 			GetComponent<Rigidbody>().velocity = newvec;
 		}
+
+    }
+
+
+    public void shoot(float angle) {
+        GameObject spawnObject = BulletPrefab;
+        GameObject spawnedInstance = Instantiate(spawnObject);
+
+
+        float height = spawnedInstance.GetComponent<Collider>().bounds.size.y;
+        //Vector3 pos = new Vector3(hit.point.x, hit.point.y + height / 2, hit.point.z);
+        float distanceFromPlayer = 2.0f;
+
+        spawnedInstance.transform.parent = transform.parent; 
+
+        Vector3 pos = new Vector3(Mathf.Cos(angle) * distanceFromPlayer, 0.0f, Mathf.Sin(angle) * distanceFromPlayer);
+        spawnedInstance.transform.position = transform.position;
+        spawnedInstance.transform.position = spawnedInstance.transform.position + pos;
+
+        float speed = 3000;
+        Vector3 vel = new Vector3(Mathf.Cos(angle) * speed, 0.0f, Mathf.Sin(angle) * speed);
+        spawnedInstance.GetComponent<Rigidbody>().velocity = spawnedInstance.GetComponent<Rigidbody>().velocity + (vel * Time.deltaTime);
 
     }
 }
