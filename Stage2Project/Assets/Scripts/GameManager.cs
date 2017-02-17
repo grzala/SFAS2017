@@ -80,7 +80,7 @@ public class GameManager : MonoBehaviour
                 }
             }
 
-			if (Input.GetButtonDown("MouseClick")) {
+			/*if (Input.GetButtonDown("MouseClick")) {
 
 				Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition); //Input.mousePosition);
 				Debug.DrawRay(ray.origin, ray.direction * 1000, Color.yellow);
@@ -88,7 +88,8 @@ public class GameManager : MonoBehaviour
 				RaycastHit hit;
 				if (Physics.Raycast(ray, out hit, 1000)) // spawn type one and delete type two
 				{
-
+					print ("game");
+					print (hit.point);
                     for (int i = 0; i < childrenCubes.Count; i++)
                     {
                         MagnetizedByPlayer child = childrenCubes[i];
@@ -106,7 +107,7 @@ public class GameManager : MonoBehaviour
 
 				}
 
-            }
+            }*/
 
             //update HUD
             //HUD hud = GameObject.Find("/HUD").GetComponent<HUD>();
