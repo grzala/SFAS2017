@@ -27,12 +27,11 @@ public class DestroyOnCollide : MonoBehaviour {
         }
 
 
-        print(GetComponent<Rigidbody>().velocity);
 	}
 
     private void OnCollisionEnter(Collision collision) {
         //if collided with something else than arena, delete the bullet
-        if (collision.collider.gameObject.layer != LayerMask.NameToLayer("Platforms")) {
+        if (collision.collider.gameObject.layer != LayerMask.NameToLayer("Platforms") && collision.collider.gameObject.layer != LayerMask.NameToLayer("Shields")) {
             toDestroy = true;
         }
     }

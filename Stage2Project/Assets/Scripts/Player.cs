@@ -12,6 +12,7 @@ public class Player : MonoBehaviour
     private GameObject BulletPrefab;
 
 	private const float MAX_SPEED = 1000;
+    private const float distanceFromPlayer = 2.0f; //distance of new spawned bullets from player
 
     private Rigidbody mBody;
 
@@ -70,7 +71,6 @@ public class Player : MonoBehaviour
 
         float height = spawnedInstance.GetComponent<Collider>().bounds.size.y;
         //Vector3 pos = new Vector3(hit.point.x, hit.point.y + height / 2, hit.point.z);
-        float distanceFromPlayer = 2.0f;
 
         spawnedInstance.transform.parent = transform.parent; 
 
