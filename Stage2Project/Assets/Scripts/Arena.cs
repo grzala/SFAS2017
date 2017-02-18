@@ -16,15 +16,9 @@ public class Arena : MonoBehaviour
 #if UNITY_EDITOR 
         if (!Application.isPlaying)
         {
-            Calculate();
+            //Calculate();
         }
 #endif
-
-
-
-
-
-
 
     }
 

@@ -135,9 +135,9 @@ public class Player : MonoBehaviour
         spawnedInstance.transform.position = transform.position;
         spawnedInstance.transform.position = spawnedInstance.transform.position + offset;
 
-        float speed = 3000;
+        float speed = 60;
         Vector3 vel = new Vector3(Mathf.Cos(angle) * speed, 0.0f, Mathf.Sin(angle) * speed);
-        spawnedInstance.GetComponent<Rigidbody>().velocity = spawnedInstance.GetComponent<Rigidbody>().velocity + (vel * Time.deltaTime);
+        spawnedInstance.GetComponent<Rigidbody>().velocity = spawnedInstance.GetComponent<Rigidbody>().velocity + (vel);
 
     }
 }

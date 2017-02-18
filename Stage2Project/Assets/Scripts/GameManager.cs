@@ -60,10 +60,10 @@ public class GameManager : MonoBehaviour
 
     void Start()
     {
-        Arena.Calculate();
+        //Arena.Calculate();
 		//mPlayer.enabled = false;
-		//mState = State.Paused;
-		mState = State.Playing;
+		mState = State.Paused;
+		//mState = State.Playing;
     }
 
     void Update()
