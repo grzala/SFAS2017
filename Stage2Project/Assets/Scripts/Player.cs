@@ -1,9 +1,10 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Networking;
 
 [RequireComponent(typeof(Rigidbody))]
-public class Player : MonoBehaviour
+public class Player : NetworkBehaviour
 {
     [SerializeField]
 	private float Speed;
@@ -14,7 +15,7 @@ public class Player : MonoBehaviour
     [SerializeField]
     private GameObject ShieldPrefab;
 
-    private Shield shield;
+    private NetworkInstanceId shieldId;
 
 	private const float MAX_SPEED = 1000;
     private const float bulletDistanceFromPlayer = 2.0f; //distance of new spawned bullets from player
@@ -22,21 +23,52 @@ public class Player : MonoBehaviour
 
     private Rigidbody mBody;
 
-    private bool shielding = false;
-
     void Awake()
     {
         mBody = GetComponent<Rigidbody>();
 
-        shield = Instantiate(ShieldPrefab).GetComponent<Shield>();
-        shield.transform.parent = transform.parent; //child of game arena
-        shield.gameObject.SetActive(false);
     }
+
+    public override void OnStartLocalPlayer() {
+        CmdCreateShield();
+    }
+
+    [Command]
+    private void CmdCreateShield()
+    {
+        GameObject toInstantiate = ShieldPrefab;
+        GameObject shieldObject = Instantiate(toInstantiate);
+        shieldObject.transform.parent = transform; //child of game arena, sibling of player
+        NetworkServer.Spawn(shieldObject);
+
+        shieldId = shieldObject.GetComponent<NetworkIdentity>().netId;
+
+    }
+
+    [Command]
+    private void CmdUpdateShield(float angle)
+    {
+    }
+        
 
     void Update()
     {
+
+        if (isLocalPlayer)
+        {
+            InterpretInput();
+        }
+
+        maintainMaxSpeed();
+            
+
+    }
+
+    private void InterpretInput() 
+    {
         Vector3 direction = Vector3.zero;
 
+        Shield shield = NetworkServer.FindLocalObject(shieldId).GetComponent<Shield>();
 
 
         if (Input.GetKey(KeyCode.A))
@@ -59,8 +91,7 @@ public class Player : MonoBehaviour
 
         mBody.AddForce(direction * Speed * Time.deltaTime);
 
-        maintainMaxSpeed();
-            
+
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition); //Input.mousePosition);
         Debug.DrawRay(ray.origin, ray.direction * 1000, Color.yellow);
 
@@ -73,8 +104,9 @@ public class Player : MonoBehaviour
 
             if (Input.GetButtonDown("Shoot"))
             {
-                shoot(angle);
+                CmdShoot(angle);
             }
+
 
             if (Input.GetButton("Shield"))
             {
@@ -83,11 +115,9 @@ public class Player : MonoBehaviour
             }
 
 
-
-            shield.transform.position = transform.position;
             Vector3 offset = new Vector3(Mathf.Cos(angle) * shieldDistanceFromPlayer, 0.0f, Mathf.Sin(angle) * shieldDistanceFromPlayer);
+            shield.transform.position = transform.position;
             shield.transform.position = shield.transform.position + offset;
-
 
             float degrees = Mathf.Atan2(-offset.z, offset.x);
             degrees *= (180 / Mathf.PI);
@@ -100,8 +130,6 @@ public class Player : MonoBehaviour
         {
             shield.gameObject.SetActive(false);
         }
-
-
     }
 
     private void maintainMaxSpeed() {
@@ -120,8 +148,8 @@ public class Player : MonoBehaviour
         }
     }
 
-
-    public void shoot(float angle) {
+    [Command]
+    public void CmdShoot(float angle) {
         GameObject spawnObject = BulletPrefab;
         GameObject spawnedInstance = Instantiate(spawnObject);
 
@@ -139,5 +167,7 @@ public class Player : MonoBehaviour
         Vector3 vel = new Vector3(Mathf.Cos(angle) * speed, 0.0f, Mathf.Sin(angle) * speed);
         spawnedInstance.GetComponent<Rigidbody>().velocity = spawnedInstance.GetComponent<Rigidbody>().velocity + (vel);
 
+		NetworkServer.Spawn(spawnedInstance);
+        //Destroy(spawnedInstance);
     }
 }

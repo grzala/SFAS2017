@@ -14,10 +14,15 @@ public class LevelCamera : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-		Transform target = following.transform;
 
-		//follow        
-		transform.position = target.position + offset;
+        if (following != null)
+        {
+
+            Transform target = following.transform;
+
+            //follow        
+            transform.position = target.position + offset;
+        }
 
 	}
 

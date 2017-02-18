@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Networking;
 
 using System.Collections.Generic;
 
@@ -37,8 +38,8 @@ public class GameManager : MonoBehaviour
     void Awake()
     {
         //mPlayer = Instantiate(PlayerPrefab);
-		mPlayer = (Player)GameObject.Find("Player").GetComponent<Player>();
-        mPlayer.transform.parent = transform;
+		//mPlayer = (Player)GameObject.Find("Player").GetComponent<Player>();
+        //mPlayer.transform.parent = transform;
 
 		LevelCamera cam = FindObjectOfType<LevelCamera>();
 		cam.enabled = true; //set as main
