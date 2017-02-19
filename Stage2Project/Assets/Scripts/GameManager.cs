@@ -77,24 +77,52 @@ public class GameManager : MonoBehaviour
 
             foreach (Player player in players)
             {
-                /*
                 if (player == null)
                     continue;
                 
 
                 //shield.transform.position = new Vector3(0, 100, 0);
                 bool shielding = player.shielding;
-                print(shielding);
-                Shield shield = player.GetComponentInChildren<Shield>();
+                Shield shield = null; // = player.GetComponentInChildren<Shield>();
                 //shield.gameObject.SetActive((bool)shielding);
 
-                if (shielding)
+                foreach (Transform child in player.transform)
                 {
-                    shield.gameObject.SetActive(true);
-                }*/
-            }
+                    
+                    shield = child.GetComponent<Shield>();
+                    if (shield != null)
+                        break;
+                    
+                }
 
-			/*if (Input.GetButtonDown("MouseClick")) {
+                if (shield != null)
+                {
+                    //shield.gameObject.SetActive(shielding);
+                    if (!shielding)
+                    {
+                        shield.transform.position = new Vector3(0, -300, 0);
+                    }
+                    else
+                    {
+                        shield.transform.position = player.transform.position;
+
+                        Vector3 offset = new Vector3(Mathf.Cos(player.angle) * Player.shieldDistanceFromPlayer, 0.0f, Mathf.Sin(player.angle) * Player.shieldDistanceFromPlayer);
+                        //shield.transform.position = transform.position;
+                        shield.transform.position = shield.transform.position + offset;
+
+                        float degrees = Mathf.Atan2(-offset.z, offset.x);
+                        degrees *= (180 / Mathf.PI);
+                        //this prevents from rotating wrong way
+
+                        Vector3 rot = shield.transform.eulerAngles;
+                        shield.transform.rotation = Quaternion.Euler(rot.x, 0, degrees);
+
+                    }
+                }
+                print(shielding);
+            }
+            print("\n");
+                /*if (Input.GetButtonDown("MouseClick")) {
 
 				Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition); //Input.mousePosition);
 				Debug.DrawRay(ray.origin, ray.direction * 1000, Color.yellow);

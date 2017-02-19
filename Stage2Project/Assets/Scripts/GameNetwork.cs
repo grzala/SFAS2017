@@ -14,10 +14,12 @@ public class GameNetwork : NetworkManager {
     public override void OnServerAddPlayer(NetworkConnection conn, short playerControllerId)
     {
         //set game manager as parent while instantiating
-        var player = (GameObject)GameObject.Instantiate(playerPrefab, new Vector3(0, 0, 0), Quaternion.identity, GetComponent<GameManager>().transform);
+        GameObject game = GameObject.Find("Game");
+        var player = (GameObject)GameObject.Instantiate(playerPrefab, new Vector3(0, 0, 0), Quaternion.identity, game.transform);
         NetworkServer.AddPlayerForConnection(conn, player, playerControllerId);
 
-        GetComponent<GameManager>().players.Add(player.GetComponent<Player>());
+        game.GetComponent<GameManager>().players.Add(player.GetComponent<Player>());
+
 
     }
 	

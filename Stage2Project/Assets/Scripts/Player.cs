@@ -17,12 +17,16 @@ public class Player : NetworkBehaviour
 
     private NetworkInstanceId shieldId;
 
-	private const float MAX_SPEED = 1000;
-    private const float bulletDistanceFromPlayer = 2.0f; //distance of new spawned bullets from player
-    private const float shieldDistanceFromPlayer = 12.0f;
+    public const float MAX_SPEED = 1000;
+    public const float bulletDistanceFromPlayer = 2.0f; //distance of new spawned bullets from player
+    public const float shieldDistanceFromPlayer = 12.0f;
 
     [SyncVar]
     public bool shielding = false;
+
+    [SyncVar]
+    public float angle = 0.0f;
+
     private Shield shield;
 
     private Rigidbody mBody;
@@ -35,6 +39,9 @@ public class Player : NetworkBehaviour
 
     public override void OnStartLocalPlayer() {
         CmdCreateShield();
+
+        //shield = NetworkServer.FindLocalObject(shieldId).GetComponent<Shield>();
+        //shield.transform.parent = transform;
     }
 
     [Command]
@@ -42,19 +49,23 @@ public class Player : NetworkBehaviour
     {
         GameObject toInstantiate = ShieldPrefab;
         GameObject shieldObject = Instantiate(toInstantiate);
-        shieldObject.name = "Shield";
+        //shieldObject.name = "Shield";
         shieldObject.transform.parent = transform; //child of game arena, sibling of player
         shieldObject.transform.position = new Vector3(0, 0, 0);
         NetworkServer.Spawn(shieldObject);
 
         shieldId = shieldObject.GetComponent<NetworkIdentity>().netId;
-
     }
 
     [Command]
     private void CmdUpdateShield(float angle)
     {
+        print(shielding);
         shield = NetworkServer.FindLocalObject(shieldId).GetComponent<Shield>();
+
+        shield.gameObject.SetActive(shielding);
+        if (!shielding)
+            return;
 
         Vector3 offset = new Vector3(Mathf.Cos(angle) * shieldDistanceFromPlayer, 0.0f, Mathf.Sin(angle) * shieldDistanceFromPlayer);
         shield.transform.position = transform.position;
@@ -67,6 +78,13 @@ public class Player : NetworkBehaviour
         Vector3 rot = shield.transform.eulerAngles;
         shield.transform.rotation = Quaternion.Euler(rot.x, 0, degrees);
     }
+
+    [Command]
+    public void CmdSetShielding(bool s, float a)
+    {
+        shielding = s;
+        angle = a;
+    }
         
 
     void Update()
@@ -74,6 +92,7 @@ public class Player : NetworkBehaviour
 
         if (isLocalPlayer)
         {
+            print(shielding);
             InterpretInput();
         }
 
@@ -126,17 +145,17 @@ public class Player : NetworkBehaviour
 
             if (Input.GetButton("Shield"))
             {
-                shield.gameObject.SetActive(true);
-                shielding = true;
+                //shielding = true;
+                CmdSetShielding(true, angle);
             }
 
-            CmdUpdateShield(angle);
+            //CmdUpdateShield(angle);
 
         }
         if (!Input.GetButton("Shield"))
         {
-            shield.gameObject.SetActive(false);
-            shielding = false;
+            //shielding = false;
+            CmdSetShielding(false, 0.0f);
         }
     }
 

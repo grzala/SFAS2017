@@ -27,3 +27,7 @@ C:\Users\Grzala\Desktop\sfas2017\Stage2Project\Temp\bin\Debug\UnityEngine.VR.xml
 C:\Users\Grzala\Desktop\sfas2017\Stage2Project\obj\Debug\Assembly-CSharp.csprojResolveAssemblyReference.cache
 C:\Users\Grzala\Desktop\sfas2017\Stage2Project\obj\Debug\Assembly-CSharp.dll
 C:\Users\Grzala\Desktop\sfas2017\Stage2Project\obj\Debug\Assembly-CSharp.pdb
+C:\Users\Grzala\Desktop\sfas2017\Stage2Project\Temp\bin\Debug\UnityEngine.Advertisements.dll
+C:\Users\Grzala\Desktop\sfas2017\Stage2Project\Temp\bin\Debug\UnityEngine.Purchasing.dll
+C:\Users\Grzala\Desktop\sfas2017\Stage2Project\Temp\bin\Debug\UnityEngine.Advertisements.xml
+C:\Users\Grzala\Desktop\sfas2017\Stage2Project\Temp\bin\Debug\UnityEngine.Purchasing.xml
