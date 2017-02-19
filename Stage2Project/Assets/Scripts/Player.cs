@@ -21,6 +21,10 @@ public class Player : NetworkBehaviour
     private const float bulletDistanceFromPlayer = 2.0f; //distance of new spawned bullets from player
     private const float shieldDistanceFromPlayer = 12.0f;
 
+    [SyncVar]
+    public bool shielding = false;
+    private Shield shield;
+
     private Rigidbody mBody;
 
     void Awake()
@@ -38,7 +42,9 @@ public class Player : NetworkBehaviour
     {
         GameObject toInstantiate = ShieldPrefab;
         GameObject shieldObject = Instantiate(toInstantiate);
+        shieldObject.name = "Shield";
         shieldObject.transform.parent = transform; //child of game arena, sibling of player
+        shieldObject.transform.position = new Vector3(0, 0, 0);
         NetworkServer.Spawn(shieldObject);
 
         shieldId = shieldObject.GetComponent<NetworkIdentity>().netId;
@@ -48,6 +54,18 @@ public class Player : NetworkBehaviour
     [Command]
     private void CmdUpdateShield(float angle)
     {
+        shield = NetworkServer.FindLocalObject(shieldId).GetComponent<Shield>();
+
+        Vector3 offset = new Vector3(Mathf.Cos(angle) * shieldDistanceFromPlayer, 0.0f, Mathf.Sin(angle) * shieldDistanceFromPlayer);
+        shield.transform.position = transform.position;
+        shield.transform.position = shield.transform.position + offset;
+
+        float degrees = Mathf.Atan2(-offset.z, offset.x);
+        degrees *= (180 / Mathf.PI);
+        //this prevents from rotating wrong way
+
+        Vector3 rot = shield.transform.eulerAngles;
+        shield.transform.rotation = Quaternion.Euler(rot.x, 0, degrees);
     }
         
 
@@ -68,8 +86,7 @@ public class Player : NetworkBehaviour
     {
         Vector3 direction = Vector3.zero;
 
-        Shield shield = NetworkServer.FindLocalObject(shieldId).GetComponent<Shield>();
-
+        //Shield shield = NetworkServer.FindLocalObject(shieldId).GetComponent<Shield>();
 
         if (Input.GetKey(KeyCode.A))
         {
@@ -91,7 +108,6 @@ public class Player : NetworkBehaviour
 
         mBody.AddForce(direction * Speed * Time.deltaTime);
 
-
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition); //Input.mousePosition);
         Debug.DrawRay(ray.origin, ray.direction * 1000, Color.yellow);
 
@@ -111,24 +127,16 @@ public class Player : NetworkBehaviour
             if (Input.GetButton("Shield"))
             {
                 shield.gameObject.SetActive(true);
-
+                shielding = true;
             }
 
+            CmdUpdateShield(angle);
 
-            Vector3 offset = new Vector3(Mathf.Cos(angle) * shieldDistanceFromPlayer, 0.0f, Mathf.Sin(angle) * shieldDistanceFromPlayer);
-            shield.transform.position = transform.position;
-            shield.transform.position = shield.transform.position + offset;
-
-            float degrees = Mathf.Atan2(-offset.z, offset.x);
-            degrees *= (180 / Mathf.PI);
-            //this prevents from rotating wrong way
-
-            Vector3 rot = shield.transform.eulerAngles;
-            shield.transform.rotation = Quaternion.Euler(rot.x, 0, degrees);
         }
         if (!Input.GetButton("Shield"))
         {
             shield.gameObject.SetActive(false);
+            shielding = false;
         }
     }
 

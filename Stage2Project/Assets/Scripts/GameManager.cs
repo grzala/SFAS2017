@@ -33,7 +33,8 @@ public class GameManager : MonoBehaviour
     private float mNextSpawn;
 
     private int cubesLeft;
-    private 
+
+    public List<Player> players = new List<Player>();
 
     void Awake()
     {
@@ -41,35 +42,27 @@ public class GameManager : MonoBehaviour
 		//mPlayer = (Player)GameObject.Find("Player").GetComponent<Player>();
         //mPlayer.transform.parent = transform;
 
-		LevelCamera cam = FindObjectOfType<LevelCamera>();
-		cam.enabled = true; //set as main
-		cam.Follow(mPlayer.gameObject);
+		//LevelCamera cam = FindObjectOfType<LevelCamera>();
+		//cam.enabled = true; //set as main
+		//cam.Follow(mPlayer.gameObject);
 
         ScreenManager.OnNewGame += ScreenManager_OnNewGame;
 		ScreenManager.OnExitGame += ScreenManager_OnExitGame;
 
-		/*
-		for (int i = 0; i < 20; i++) {
-			int indexToSpawn = 1;
-			GameObject spawnObject = SpawnPrefabs[indexToSpawn];
-			GameObject spawnedInstance = Instantiate(spawnObject);
-			spawnedInstance.transform.parent = transform;
-			//mNextSpawn = TimeBetweenSpawns;
-		}
-		*/
+
     }
 
     void Start()
     {
         //Arena.Calculate();
 		//mPlayer.enabled = false;
-		mState = State.Paused;
-		//mState = State.Playing;
+		//mState = State.Paused;
+		mState = State.Playing;
     }
 
     void Update()
     {
-        if( mState == State.Playing)
+        if (mState == State.Playing)
         {
             MagnetizedByPlayer[] temp = GetComponentsInChildren<MagnetizedByPlayer>();
             List<MagnetizedByPlayer> childrenCubes = new List<MagnetizedByPlayer>();
@@ -79,6 +72,26 @@ public class GameManager : MonoBehaviour
                 {
                     childrenCubes.Add(cube);
                 }
+            }
+
+
+            foreach (Player player in players)
+            {
+                /*
+                if (player == null)
+                    continue;
+                
+
+                //shield.transform.position = new Vector3(0, 100, 0);
+                bool shielding = player.shielding;
+                print(shielding);
+                Shield shield = player.GetComponentInChildren<Shield>();
+                //shield.gameObject.SetActive((bool)shielding);
+
+                if (shielding)
+                {
+                    shield.gameObject.SetActive(true);
+                }*/
             }
 
 			/*if (Input.GetButtonDown("MouseClick")) {
@@ -168,3 +181,26 @@ public class GameManager : MonoBehaviour
         EndGame();
     }
 }
+
+/*
+for (int i = 0; i < 20; i++) {
+    int indexToSpawn = 1;
+    GameObject spawnObject = SpawnPrefabs[indexToSpawn];
+    GameObject spawnedInstance = Instantiate(spawnObject);
+    spawnedInstance.transform.parent = transform;
+    //mNextSpawn = TimeBetweenSpawns;
+}
+*/
+
+/*
+Vector3 offset = new Vector3(Mathf.Cos(angle) * shieldDistanceFromPlayer, 0.0f, Mathf.Sin(angle) * shieldDistanceFromPlayer);
+//shield.transform.position = transform.position;
+//shield.transform.position = shield.transform.position + offset;
+
+float degrees = Mathf.Atan2(-offset.z, offset.x);
+degrees *= (180 / Mathf.PI);
+//this prevents from rotating wrong way
+
+Vector3 rot = shield.transform.eulerAngles;
+shield.transform.rotation = Quaternion.Euler(rot.x, 0, degrees);
+*/

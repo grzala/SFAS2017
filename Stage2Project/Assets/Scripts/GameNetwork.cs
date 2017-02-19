@@ -17,6 +17,8 @@ public class GameNetwork : NetworkManager {
         var player = (GameObject)GameObject.Instantiate(playerPrefab, new Vector3(0, 0, 0), Quaternion.identity, GetComponent<GameManager>().transform);
         NetworkServer.AddPlayerForConnection(conn, player, playerControllerId);
 
+        GetComponent<GameManager>().players.Add(player.GetComponent<Player>());
+
     }
 	
 	// Update is called once per frame

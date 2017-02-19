@@ -1,17 +1,10 @@
 ﻿<Properties StartupItem="Assembly-CSharp.csproj">
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" PreferredExecutionTarget="Unity.Instance.Unity Editor" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\Scripts\Player.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\Scripts\GameManager.cs">
     <Files>
-      <File FileName="Assets\Scripts\HUD.cs" Line="1" Column="1" />
-      <File FileName="Assets\Scripts\GameManager.cs" Line="46" Column="1" />
-      <File FileName="Assets\Scripts\LevelCamera.cs" Line="1" Column="1" />
-      <File FileName="Assets\Scripts\Arena.cs" Line="1" Column="1" />
-      <File FileName="Assets\Scripts\GroupTag.cs" Line="1" Column="1" />
-      <File FileName="Assets\Scripts\MagnetizedByPlayer.cs" Line="1" Column="1" />
-      <File FileName="Assets\Scripts\DestroyOnCollide.cs" Line="1" Column="1" />
-      <File FileName="Assets\Scripts\Player.cs" Line="18" Column="14" />
-      <File FileName="Assets\Scripts\FlockWithGroup.cs" Line="1" Column="1" />
-      <File FileName="Assets\Scripts\GameNetwork.cs" Line="16" Column="57" />
+      <File FileName="Assets\Scripts\Player.cs" Line="43" Column="9" />
+      <File FileName="Assets\Scripts\GameManager.cs" Line="97" Column="18" />
+      <File FileName="Assets\Scripts\GameNetwork.cs" Line="19" Column="1" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
