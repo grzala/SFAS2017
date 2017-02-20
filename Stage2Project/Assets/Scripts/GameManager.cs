@@ -64,6 +64,8 @@ public class GameManager : MonoBehaviour
     {
         if (mState == State.Playing)
         {
+
+
             MagnetizedByPlayer[] temp = GetComponentsInChildren<MagnetizedByPlayer>();
             List<MagnetizedByPlayer> childrenCubes = new List<MagnetizedByPlayer>();
             foreach (MagnetizedByPlayer cube in temp)
@@ -119,9 +121,7 @@ public class GameManager : MonoBehaviour
 
                     }
                 }
-                print(shielding);
             }
-            print("\n");
                 /*if (Input.GetButtonDown("MouseClick")) {
 
 				Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition); //Input.mousePosition);

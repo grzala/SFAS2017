@@ -40,6 +40,7 @@ public class Player : NetworkBehaviour
     public override void OnStartLocalPlayer() {
         CmdCreateShield();
 
+		Camera.main.GetComponent<LevelCamera>().Follow(this.gameObject);
         //shield = NetworkServer.FindLocalObject(shieldId).GetComponent<Shield>();
         //shield.transform.parent = transform;
     }
@@ -60,7 +61,6 @@ public class Player : NetworkBehaviour
     [Command]
     private void CmdUpdateShield(float angle)
     {
-        print(shielding);
         shield = NetworkServer.FindLocalObject(shieldId).GetComponent<Shield>();
 
         shield.gameObject.SetActive(shielding);

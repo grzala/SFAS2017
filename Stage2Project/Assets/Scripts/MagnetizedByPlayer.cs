@@ -27,7 +27,25 @@ public class MagnetizedByPlayer : MonoBehaviour
 
 	void Update()
     {
-        if( mPlayer != null)
+        //mPlayer is the closest of All players - should this be magnetized by all players, or just closest one?
+        //All Magnetized are children of gamemanager
+        GameManager gameManager = transform.parent.GetComponent<GameManager>();
+        float distance = float.MaxValue;
+        Player closestPlayer = null;
+
+        foreach (Player p in gameManager.players) 
+        {
+            float temp = Vector3.Distance(p.transform.position, transform.position);
+            if (temp < distance)
+            {
+                closestPlayer = p;
+                distance = temp;
+            }
+        }
+
+        mPlayer = closestPlayer;
+
+        if (mPlayer != null)
         {
             Vector3 difference = MagnetizeType == Type.Repel ? transform.position - mPlayer.transform.position : mPlayer.transform.position - transform.position;
             if( difference.magnitude <= MinimumDistance )
