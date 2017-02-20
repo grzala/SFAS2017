@@ -9,6 +9,8 @@ public class PowerupHandler : MonoBehaviour {
     //this is a queue - buff at index 0 is first to be toggled off
     List<Buff> activePowerups = new List<Buff>();
 
+    Dictionary<Powerup.Type, float> durations = new Dictionary<Powerup.Type, float>();
+
     //buff is an abstract representation of an effect of a powerup
     //holds target and type
     //buff is applied directly to a player
@@ -20,8 +22,17 @@ public class PowerupHandler : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-		
+        PopulateDurations();
 	}
+
+    private void PopulateDurations()
+    {
+        //if 
+        durations.Add(Powerup.Type.SPEED_UP, 5.0f);
+        durations.Add(Powerup.Type.SLOW_DOWN, 5.0f);
+        durations.Add(Powerup.Type.INVERSE, 3.0f);
+        durations.Add(Powerup.Type.DOUBLE_CUBES, 0.1f);
+    }
 	
 	// Update is called once per frame
 	void Update () {
@@ -38,12 +49,13 @@ public class PowerupHandler : MonoBehaviour {
             Buff b = activePowerups[i];
             b.timeLeft -= Time.deltaTime;
             activePowerups[i] = b;
-            print(b.timeLeft);
+            //print(activePowerups[i].timeLeft);
         }
     }
 
     private void DeactivateInactivePowerups()
     {
+        //while first in queue has less than 0 senconds left, delete from queue
         while (activePowerups.Count > 0 && activePowerups[0].timeLeft <= 0)
         {
             TogglePowerup(activePowerups[0], false);
@@ -79,7 +91,7 @@ public class PowerupHandler : MonoBehaviour {
         Buff b;
         b.target = target;
         b.type = type;
-        b.timeLeft = 5.0f;
+        b.timeLeft = durations[b.type];
 
         return b;
 
@@ -96,27 +108,45 @@ public class PowerupHandler : MonoBehaviour {
             case Powerup.Type.SLOW_DOWN:
                 b.target.slowBuff = toggle;
                 break;
+            case Powerup.Type.INVERSE:
+                b.target.inverted = toggle;
+                break;
+
+            case Powerup.Type.DOUBLE_CUBES:
+                if (toggle)
+                {
+                    GetComponent<GameManager>().DoubleCubes(b.target);
+                }
+                break;
+                
+            default:
+                print("WARNING!!!!!!!!: POWERUP NOT YET IMPLEMENTED");
+                break;
         }
 
-        if (toggle)
-            AddBuff(b);
     }
 
     public void AddBuff(Buff b)
     {
+        //if there is already such a buff, remove it, and then add later at appropriate index
+        int toRemove = -1;
+        for (int i = 0; i < activePowerups.Count; i++)
+        {
+            if (activePowerups[i].type == b.type && activePowerups[i].target.netId == b.target.netId)
+            {
+                toRemove = i;
+                break;
+            }
+        }
+        if (toRemove >= 0)
+        {
+            activePowerups.RemoveAt(toRemove);
+        }
+
         if (activePowerups.Count == 0)
         {
             activePowerups.Add(b);
             return;
-        }
-
-        //if there is already such a buff, reset it
-        for (int i = 0; i < activePowerups.Count; i++)
-        {
-            if (activePowerups[i].type == b.type && activePowerups[i].target == b.target){
-                activePowerups[i] = b;
-                return;
-            }
         }
 
         //find suitable place to insert the buff

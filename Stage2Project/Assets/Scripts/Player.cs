@@ -34,7 +34,9 @@ public class Player : NetworkBehaviour
     public bool speedBuff = false;
     [SyncVar]
     public bool slowBuff = false;
-    public const float SPEED_BUFF_MODIF = 5.0f;
+    public const float SPEED_BUFF_MODIF = 2.5f;
+	[SyncVar]
+	public bool inverted = false;
 
     private Shield shield;
 
@@ -116,20 +118,20 @@ public class Player : NetworkBehaviour
 
         if (Input.GetKey(KeyCode.A))
         {
-            direction = -Vector3.right;
+			direction += !inverted ? Vector3.left : Vector3.right;
         }
         else if (Input.GetKey(KeyCode.D))
         {
-            direction = Vector3.right;
+			direction += !inverted ? Vector3.right : Vector3.left;
         }
 
         if (Input.GetKey(KeyCode.W))
-        {
-            direction += Vector3.forward;
+		{
+			direction += !inverted ? Vector3.forward : -Vector3.forward;
         }
         else if (Input.GetKey(KeyCode.S))
-        {
-            direction += -Vector3.forward;
+		{
+			direction += !inverted ? -Vector3.forward : Vector3.forward;
         }
 
         float speed_to_add = accel;
@@ -143,6 +145,7 @@ public class Player : NetworkBehaviour
         
         mBody.AddForce(direction * speed_to_add * Time.deltaTime);
         maintainMaxSpeed();
+        //Accelerate(direction * speed_to_add * Time.deltaTime);
 
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition); //Input.mousePosition);
         Debug.DrawRay(ray.origin, ray.direction * 1000, Color.yellow);
@@ -189,13 +192,36 @@ public class Player : NetworkBehaviour
             modif_max_speed *= 1/SPEED_BUFF_MODIF;
 
         if (velocity > modif_max_speed) {
-            print(velocity);
-            print(modif_max_speed);
-            print("\n");
 
             float angle = Mathf.Atan2(vec.z, vec.x);
             Vector3 newvec = new Vector3(Mathf.Cos(angle) * modif_max_speed * Time.deltaTime, vec.y, Mathf.Sin(angle) * modif_max_speed * Time.deltaTime);
             GetComponent<Rigidbody>().velocity = newvec;
+        }
+    }
+
+    private void Accelerate(Vector3 acc)
+    {
+        Vector3 vec = GetComponent<Rigidbody>().velocity;
+        vec += acc;
+        Vector2 vel = new Vector2(vec.x, vec.z);
+
+        float velocity = vel.SqrMagnitude();
+
+        float modif_max_speed = MAX_SPEED;
+        if (speedBuff)
+            modif_max_speed *= SPEED_BUFF_MODIF;
+        if (slowBuff)
+            modif_max_speed *= 1/SPEED_BUFF_MODIF;
+
+        if (velocity > modif_max_speed)
+        {
+            float angle = Mathf.Atan2(vec.z, vec.x);
+            Vector3 newvec = new Vector3(Mathf.Cos(angle) * modif_max_speed * Time.deltaTime, vec.y, Mathf.Sin(angle) * modif_max_speed * Time.deltaTime);
+            GetComponent<Rigidbody>().velocity = newvec;
+        }
+        else
+        {
+            GetComponent<Rigidbody>().AddForce(acc);
         }
     }
 

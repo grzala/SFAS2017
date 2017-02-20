@@ -29,7 +29,9 @@ public class Powerup : MonoBehaviour {
     public enum Type
     {
         SPEED_UP,
-        SLOW_DOWN
+        SLOW_DOWN,
+		INVERSE,
+		DOUBLE_CUBES
     }
 
     public enum Target
@@ -39,15 +41,27 @@ public class Powerup : MonoBehaviour {
         ARENA
     }
 
+    private Dictionary<Type, string> textureNames = new Dictionary<Type, string>();
+
 	// Use this for initialization
 	void Start () {
         current_bounce = bounce_bottom;		
+        PopulateTexNames();
 
-        type = Type.SLOW_DOWN;
+		type = Type.DOUBLE_CUBES;
         target = Target.SELF;
 
         SetColor();
+        SetIcon();
 	}
+
+    private void PopulateTexNames()
+    {
+        textureNames.Add(Type.SPEED_UP, "speed_up");
+		textureNames.Add(Type.SLOW_DOWN, "slow_down");
+		textureNames.Add(Type.INVERSE, "inverse");
+        textureNames.Add(Type.DOUBLE_CUBES, "double");
+    }
 
     public void SetType(Type type, Target target)
     {
@@ -55,6 +69,7 @@ public class Powerup : MonoBehaviour {
         this.target = target;
 
         SetColor();
+        SetIcon();
     }
 
     private void SetColor()
@@ -75,6 +90,13 @@ public class Powerup : MonoBehaviour {
 
 
         GetComponent<Renderer>().materials = mats;
+    }
+
+    private void SetIcon()
+    {
+        Sprite s = Resources.Load(textureNames[type], typeof(Sprite)) as Sprite;
+
+        GetComponentInChildren<SpriteRenderer>().sprite = s;
     }
 	
 	// Update is called once per frame
@@ -109,7 +131,7 @@ public class Powerup : MonoBehaviour {
     private void OnTriggerEnter(Collider collision) {
         //only players collect powerups
         if (collision.gameObject.tag == "Player") {
-            //print("COLLECT");
+            //Resources.Load("COLLECT");
 
             transform.parent.GetComponent<PowerupHandler>().ActivatePowerup(type, target, collision.GetComponent<Player>());
 

@@ -58,6 +58,7 @@ public class GameManager : MonoBehaviour
 		//mPlayer.enabled = false;
 		//mState = State.Paused;
 		mState = State.Playing;
+
     }
 
     void Update()
@@ -207,6 +208,45 @@ public class GameManager : MonoBehaviour
     private void ScreenManager_OnExitGame()
     {
         EndGame();
+    }
+
+	public void DoubleCubes(Player p)
+	{
+		//THIS SCRIPTS CONTROLS  T H E  C U B E S
+		//COMPARED TO IT, YOU ARE NOTHING
+
+        //for every cube, create a new one on top of it
+
+        foreach (MagnetizedByPlayer cube in GetPlayerCubes(p))
+        {
+            GameObject spawnedInstance = Instantiate(SpawnPrefabs[1], transform);
+            spawnedInstance.transform.position = cube.transform.position + new Vector3(0, cube.GetComponent<Renderer>().bounds.size.y, 0);
+            spawnedInstance.GetComponent<Rigidbody>().velocity = cube.GetComponent<Rigidbody>().velocity;
+        }
+	}
+
+    public MagnetizedByPlayer[] GetPlayerCubes(Player p)
+    {
+        MagnetizedByPlayer[] cubes = GetComponentsInChildren<MagnetizedByPlayer>();
+        List<MagnetizedByPlayer> temp = new List<MagnetizedByPlayer>();
+        foreach (MagnetizedByPlayer cube in cubes)
+        {
+            float dist = Vector3.Distance(p.transform.position, cube.transform.position);
+            if (dist < cube.GetMagnetRange())
+            {
+                temp.Add(cube);
+            }
+        }
+
+        return temp.ToArray();
+    }
+
+    public void DeleteRandomPlayerCube(Player p)
+    {
+        MagnetizedByPlayer[] cubes = GetPlayerCubes(p);
+
+        int index = Random.Range(0, cubes.Length);
+        Destroy(cubes[index]);
     }
 }
 

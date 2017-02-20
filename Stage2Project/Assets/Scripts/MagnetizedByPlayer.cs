@@ -55,6 +55,11 @@ public class MagnetizedByPlayer : MonoBehaviour
         }		
 	}
 
+    public float GetMagnetRange()
+    {
+        return MinimumDistance;
+    }
+
     public Type getMagnetType()
     {
         return MagnetizeType;
