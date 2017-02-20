@@ -20,12 +20,21 @@ public class Player : NetworkBehaviour
     public const float MAX_SPEED = 1000;
     public const float bulletDistanceFromPlayer = 2.0f; //distance of new spawned bullets from player
     public const float shieldDistanceFromPlayer = 12.0f;
+    public const float accel = 6000;
 
     [SyncVar]
     public bool shielding = false;
 
+
     [SyncVar]
     public float angle = 0.0f;
+
+    //BUFFS
+    [SyncVar]
+    public bool speedBuff = false;
+    [SyncVar]
+    public bool slowBuff = false;
+    public const float SPEED_BUFF_MODIF = 5.0f;
 
     private Shield shield;
 
@@ -92,11 +101,9 @@ public class Player : NetworkBehaviour
 
         if (isLocalPlayer)
         {
-            print(shielding);
             InterpretInput();
         }
 
-        maintainMaxSpeed();
             
 
     }
@@ -125,7 +132,17 @@ public class Player : NetworkBehaviour
             direction += -Vector3.forward;
         }
 
-        mBody.AddForce(direction * Speed * Time.deltaTime);
+        float speed_to_add = accel;
+
+
+        if (speedBuff)
+            speed_to_add *= SPEED_BUFF_MODIF;
+        if (slowBuff)
+            speed_to_add *= 1/SPEED_BUFF_MODIF;
+        
+        
+        mBody.AddForce(direction * speed_to_add * Time.deltaTime);
+        maintainMaxSpeed();
 
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition); //Input.mousePosition);
         Debug.DrawRay(ray.origin, ray.direction * 1000, Color.yellow);
@@ -165,12 +182,19 @@ public class Player : NetworkBehaviour
 
         float velocity = vel.SqrMagnitude();
 
-        if (velocity > MAX_SPEED) {
-            Vector2 newvel;
-            float dif = velocity - MAX_SPEED;
-            float percent = dif / velocity;
-            newvel = vel - (vel * percent);
-            Vector3 newvec = new Vector3(newvel.x, vec.y, newvel.y);
+        float modif_max_speed = MAX_SPEED;
+        if (speedBuff)
+            modif_max_speed *= SPEED_BUFF_MODIF;
+        if (slowBuff)
+            modif_max_speed *= 1/SPEED_BUFF_MODIF;
+
+        if (velocity > modif_max_speed) {
+            print(velocity);
+            print(modif_max_speed);
+            print("\n");
+
+            float angle = Mathf.Atan2(vec.z, vec.x);
+            Vector3 newvec = new Vector3(Mathf.Cos(angle) * modif_max_speed * Time.deltaTime, vec.y, Mathf.Sin(angle) * modif_max_speed * Time.deltaTime);
             GetComponent<Rigidbody>().velocity = newvec;
         }
     }
@@ -197,4 +221,6 @@ public class Player : NetworkBehaviour
 		NetworkServer.Spawn(spawnedInstance);
         //Destroy(spawnedInstance);
     }
+
+
 }
