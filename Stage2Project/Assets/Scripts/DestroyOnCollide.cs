@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Networking;
 
 public class DestroyOnCollide : MonoBehaviour {
 
@@ -22,7 +23,7 @@ public class DestroyOnCollide : MonoBehaviour {
 
         if (framesLeft <= 0)
         {
-            Destroy(gameObject);
+            NetworkServer.Destroy(gameObject);
             Destroy(this);
         }
 

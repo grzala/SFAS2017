@@ -82,8 +82,18 @@ public class GameManager : MonoBehaviour
             {
                 if (player == null)
                     continue;
-                
 
+                //UPDATE CUBES
+                player.cubesLeft = GetPlayerCubes(player).Length;
+
+                //RELOAD
+                if (player.shotsLeft <= 0 && player.cubesLeft > 0)
+                {
+                    DeleteRandomPlayerCube(player);
+                    player.shotsLeft += Player.SHOTS_PER_RELOAD;
+                }
+                
+                //UPDATE SHIELD
                 //shield.transform.position = new Vector3(0, 100, 0);
                 bool shielding = player.shielding;
                 Shield shield = null; // = player.GetComponentInChildren<Shield>();
@@ -100,8 +110,14 @@ public class GameManager : MonoBehaviour
 
                 if (shield != null)
                 {
-                    //shield.gameObject.SetActive(shielding);
-                    if (!shielding)
+                    //reload
+                    if (player.shieldingTimeLeft <= 0 && GetPlayerCubes(player).Length > 0)
+                    {
+                        DeleteRandomPlayerCube(player);
+                        player.shieldingTimeLeft += Player.SHIELDING_TIME;
+                    }
+
+                    if (!shielding || player.shieldingTimeLeft <= 0)
                     {
                         shield.transform.position = new Vector3(0, -300, 0);
                     }
@@ -120,37 +136,11 @@ public class GameManager : MonoBehaviour
                         Vector3 rot = shield.transform.eulerAngles;
                         shield.transform.rotation = Quaternion.Euler(rot.x, 0, degrees);
 
+                        player.shieldingTimeLeft -= Time.deltaTime;
+
                     }
                 }
             }
-                /*if (Input.GetButtonDown("MouseClick")) {
-
-				Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition); //Input.mousePosition);
-				Debug.DrawRay(ray.origin, ray.direction * 1000, Color.yellow);
-
-				RaycastHit hit;
-				if (Physics.Raycast(ray, out hit, 1000)) // spawn type one and delete type two
-				{
-					print ("game");
-					print (hit.point);
-                    for (int i = 0; i < childrenCubes.Count; i++)
-                    {
-                        MagnetizedByPlayer child = childrenCubes[i];
-                        if (child.getMagnetType() == MagnetizedByPlayer.Type.Attract)
-                        {
-                            //GameObject.Destroy(child.gameObject);
-                            break;
-                        }
-                    }
-
-                    Vector2 shootAngle = new Vector2(hit.point.x - mPlayer.transform.position.x, hit.point.z - mPlayer.transform.position.z);
-                    float angle = Mathf.Atan2(shootAngle.y, shootAngle.x);
-
-                    mPlayer.shoot(angle);
-
-				}
-
-            }*/
 
             //update HUD
             //HUD hud = GameObject.Find("/HUD").GetComponent<HUD>();
@@ -246,7 +236,8 @@ public class GameManager : MonoBehaviour
         MagnetizedByPlayer[] cubes = GetPlayerCubes(p);
 
         int index = Random.Range(0, cubes.Length);
-        Destroy(cubes[index]);
+        //Destroy(cubes[index].gameObject);
+        NetworkServer.Destroy(cubes[index].gameObject);
     }
 }
 

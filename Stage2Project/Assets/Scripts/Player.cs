@@ -24,10 +24,18 @@ public class Player : NetworkBehaviour
 
     [SyncVar]
     public bool shielding = false;
-
+    [SyncVar]
+    public float shieldingTimeLeft;
+    public const float SHIELDING_TIME = 1.0f; //in seconds
 
     [SyncVar]
     public float angle = 0.0f;
+
+    [SyncVar]
+    public int cubesLeft = 0;
+    [SyncVar]
+    public int shotsLeft = 0;
+    public const int SHOTS_PER_RELOAD = 5;
 
     //BUFFS
     [SyncVar]
@@ -42,6 +50,8 @@ public class Player : NetworkBehaviour
 
     private Rigidbody mBody;
 
+    private HUD hud;
+
     void Awake()
     {
         mBody = GetComponent<Rigidbody>();
@@ -54,6 +64,10 @@ public class Player : NetworkBehaviour
 		Camera.main.GetComponent<LevelCamera>().Follow(this.gameObject);
         //shield = NetworkServer.FindLocalObject(shieldId).GetComponent<Shield>();
         //shield.transform.parent = transform;
+
+        hud = GameObject.Find("HUD").GetComponent<HUD>();
+        shotsLeft = SHOTS_PER_RELOAD;
+        shieldingTimeLeft = SHIELDING_TIME;
     }
 
     [Command]
@@ -104,11 +118,22 @@ public class Player : NetworkBehaviour
         if (isLocalPlayer)
         {
             InterpretInput();
+
+			UpdateHUD(); //HUD is updated on clientside
         }
 
             
 
     }
+
+	void UpdateHUD()
+	{
+        hud.setCubes(cubesLeft);
+        hud.setShots(shotsLeft);
+
+        int shieldPercent = (int)((shieldingTimeLeft / SHIELDING_TIME) * 100);
+        hud.setShield(shieldPercent);
+	}
 
     private void InterpretInput() 
     {
@@ -227,6 +252,9 @@ public class Player : NetworkBehaviour
 
     [Command]
     public void CmdShoot(float angle) {
+        if (shotsLeft <= 0)
+            return; //no shots, need to reload
+
         GameObject spawnObject = BulletPrefab;
         GameObject spawnedInstance = Instantiate(spawnObject);
 
@@ -245,6 +273,8 @@ public class Player : NetworkBehaviour
         spawnedInstance.GetComponent<Rigidbody>().velocity = spawnedInstance.GetComponent<Rigidbody>().velocity + (vel);
 
 		NetworkServer.Spawn(spawnedInstance);
+
+        shotsLeft--;
         //Destroy(spawnedInstance);
     }
 
