@@ -31,4 +31,13 @@ public class Arena : MonoBehaviour
             transform.localScale = new Vector3(Width * 0.1f, 1.0f, Height * 0.1f);
         }
     }
+
+    public Vector2 GetRandomAvailableSpawnPoint()
+    {
+        Vector2 point = new Vector2(0, 0);
+
+
+
+        return point;
+    }
 }

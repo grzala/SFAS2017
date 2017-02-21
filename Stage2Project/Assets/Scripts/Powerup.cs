@@ -102,7 +102,7 @@ public class Powerup : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
 
-        transform.GetChild(0).Rotate(new Vector3(0, rotationSpeed * Time.deltaTime, 0));
+        //transform.GetChild(0).Rotate(new Vector3(0, rotationSpeed * Time.deltaTime, 0));
 
 
         float cur_speed;
