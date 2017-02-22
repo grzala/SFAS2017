@@ -48,7 +48,7 @@ public class Powerup : MonoBehaviour {
         current_bounce = bounce_bottom;		
         PopulateTexNames();
 
-		type = Type.DOUBLE_CUBES;
+        type = Type.SPEED_UP;
         target = Target.SELF;
 
         SetColor();

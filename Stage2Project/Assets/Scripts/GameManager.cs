@@ -27,6 +27,11 @@ public class GameManager : MonoBehaviour
     [SerializeField]
     private float TimeBetweenSpawns;
 
+    private Dictionary<Player, int> scores = new Dictionary<Player, int>();
+    private float nextScoreCount;
+    private const float SCORE_COUNT_FREQUENCY = 1.5f;
+    private int scoreGoal = 100;
+
     private List<GameObject> mObjects;
     private Player mPlayer;
     private State mState;
@@ -57,7 +62,8 @@ public class GameManager : MonoBehaviour
         //Arena.Calculate();
 		//mPlayer.enabled = false;
 		//mState = State.Paused;
-		mState = State.Playing;
+        mState = State.Playing;
+        nextScoreCount = SCORE_COUNT_FREQUENCY;
 
     }
 
@@ -65,7 +71,6 @@ public class GameManager : MonoBehaviour
     {
         if (mState == State.Playing)
         {
-
 
             MagnetizedByPlayer[] temp = GetComponentsInChildren<MagnetizedByPlayer>();
             List<MagnetizedByPlayer> childrenCubes = new List<MagnetizedByPlayer>();
@@ -77,11 +82,42 @@ public class GameManager : MonoBehaviour
                 }
             }
 
+            //UpdatePoints
+            nextScoreCount -= Time.deltaTime;
+            if (nextScoreCount <= 0)
+            {
+                nextScoreCount = SCORE_COUNT_FREQUENCY;
+                foreach (Player player in players)
+                {
+                    if (player == null)
+                    {
+                        if (scores[player] != null)
+                        {
+                            scores.Remove(player);
+                        }
+                        continue;
+                    }
+                    if (!scores.ContainsKey(player))
+                    {
+                        scores[player] = 0;
+                    }
+
+                    scores[player] += GetPlayerCubes(player).Length;
+                    player.score = scores[player];
+
+                    if (scores[player] > scoreGoal)
+                        EndGame();
+                }
+            }
+
+
 
             foreach (Player player in players)
             {
                 if (player == null)
+                {
                     continue;
+                }
 
                 //UPDATE CUBES
                 player.cubesLeft = GetPlayerCubes(player).Length;
@@ -146,23 +182,25 @@ public class GameManager : MonoBehaviour
             //HUD hud = GameObject.Find("/HUD").GetComponent<HUD>();
             //hud.setCubes(childrenCubes.Count);
 
-			/*
-                mNextSpawn -= Time.deltaTime;
-                if( mNextSpawn <= 0.0f )
+			
+            mNextSpawn -= Time.deltaTime;
+            if( mNextSpawn <= 0.0f )
+            {
+                if (mObjects == null)
                 {
-                    if (mObjects == null)
-                    {
-                        mObjects = new List<GameObject>();
-                    }
-
-                    int indexToSpawn = Random.Range(0, SpawnPrefabs.Length);
-                    GameObject spawnObject = SpawnPrefabs[indexToSpawn];
-                    GameObject spawnedInstance = Instantiate(spawnObject);
-                    spawnedInstance.transform.parent = transform;
-                    mObjects.Add(spawnedInstance);
-                    mNextSpawn = TimeBetweenSpawns;
+                    mObjects = new List<GameObject>();
                 }
-            */
+
+                GameObject spawnObject = SpawnPrefabs[1];
+                GameObject spawnedInstance = Instantiate(spawnObject);
+                spawnedInstance.transform.parent = transform;
+                SetRandomPos(spawnedInstance);
+
+                mObjects.Add(spawnedInstance);
+                mNextSpawn = TimeBetweenSpawns;
+                NetworkServer.Spawn(spawnedInstance);
+            }
+
 
         }
     }
@@ -186,8 +224,8 @@ public class GameManager : MonoBehaviour
 
     private void EndGame()
     {
-        mPlayer.enabled = false;
-        mState = State.Paused;
+        //mPlayer.enabled = false;
+        //mState = State.Paused;
     }
 
     private void ScreenManager_OnNewGame()
@@ -210,6 +248,7 @@ public class GameManager : MonoBehaviour
         foreach (MagnetizedByPlayer cube in GetPlayerCubes(p))
         {
             GameObject spawnedInstance = Instantiate(SpawnPrefabs[1], transform);
+            spawnedInstance.transform.position = new Vector3(0.0f, 3.0f, 0.0f);
             spawnedInstance.transform.position = cube.transform.position + new Vector3(0, cube.GetComponent<Renderer>().bounds.size.y, 0);
             spawnedInstance.GetComponent<Rigidbody>().velocity = cube.GetComponent<Rigidbody>().velocity;
         }
@@ -238,6 +277,52 @@ public class GameManager : MonoBehaviour
         int index = Random.Range(0, cubes.Length);
         //Destroy(cubes[index].gameObject);
         NetworkServer.Destroy(cubes[index].gameObject);
+    }
+
+    //test again all transform children and also arena walls
+    //cannot spawn inside walls
+    public void SetRandomPos(GameObject obj)
+    {
+        do
+        {
+            Vector2 pos = Arena.GetRandomAvailableSpawnPoint();
+            obj.transform.position = new Vector3(pos.x, obj.transform.position.y, pos.y);
+
+        } while(!CanSpawn(obj));
+
+    }
+
+    public bool CanSpawn(GameObject obj)
+    {
+        bool canSpawn = true;
+
+        List<GameObject> collidableObjects = Arena.GetAllWalls();
+        List<GameObject> objectsInGame = new List<GameObject>();
+
+
+        foreach (Transform t in transform)
+        {
+            objectsInGame.Add(t.gameObject);
+        }
+
+        collidableObjects.AddRange(objectsInGame);
+
+        foreach (GameObject obj2 in collidableObjects)
+        {
+
+            if (obj2 == obj)
+                continue;
+
+            if (obj2.GetComponent<Collider>().bounds.Intersects(obj.GetComponent<Collider>().bounds))
+                {
+                    canSpawn = false;
+                    break;
+                }
+
+        }
+
+
+        return canSpawn;
     }
 }
 

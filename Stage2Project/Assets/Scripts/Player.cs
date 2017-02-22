@@ -37,6 +37,9 @@ public class Player : NetworkBehaviour
     public int shotsLeft = 0;
     public const int SHOTS_PER_RELOAD = 5;
 
+    [SyncVar]
+    public int score = 0;
+
     //BUFFS
     [SyncVar]
     public bool speedBuff = false;
@@ -133,6 +136,8 @@ public class Player : NetworkBehaviour
 
         int shieldPercent = (int)((shieldingTimeLeft / SHIELDING_TIME) * 100);
         hud.setShield(shieldPercent);
+
+        hud.setScore(score);
 	}
 
     private void InterpretInput() 

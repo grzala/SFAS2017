@@ -31,4 +31,9 @@ public class HUD : MonoBehaviour {
         Text text = transform.Find("ShieldCount").GetComponent<Text>();
         text.text = "Shield Charge: " + percent.ToString() + "%";
     }
+
+    public void setScore(int score) {
+        Text text = transform.Find("ScoreCount").GetComponent<Text>();
+        text.text = "Score: " + score.ToString();
+    }
 }
