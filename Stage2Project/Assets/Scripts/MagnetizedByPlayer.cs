@@ -27,6 +27,8 @@ public class MagnetizedByPlayer : MonoBehaviour
 
 	void Update()
     {
+        //THIS CANNOT RUN ON UPDATE - MUST RUN ON SERVER SIDE, PUT THIS IN METHOD CALL THIS FROM GAMEMANAGER.UPDATE
+
         //mPlayer is the closest of All players - should this be magnetized by all players, or just closest one?
         //All Magnetized are children of gamemanager
         GameManager gameManager = transform.parent.GetComponent<GameManager>();
@@ -54,6 +56,39 @@ public class MagnetizedByPlayer : MonoBehaviour
             }
         }		
 	}
+
+    public Player GetClosestPlayer(List<Player> plist)
+    {
+        float distance = float.MaxValue;
+        Player closestPlayer = null;
+
+        foreach (Player p in plist) 
+        {
+            float temp = Vector3.Distance(p.transform.position, transform.position);
+            if (temp < distance)
+            {
+                closestPlayer = p;
+                distance = temp;
+            }
+        }
+
+        return closestPlayer;
+    }
+
+    public void MagnetizeByPlayer(Player p)
+    {
+        Vector3 difference = MagnetizeType == Type.Repel ? transform.position - mPlayer.transform.position : mPlayer.transform.position - transform.position;
+        if( difference.magnitude <= MinimumDistance )
+        {
+            mBody.AddForce(difference * RepelForce * Time.deltaTime);
+        }
+    }
+
+    public void MagnetizeByClosestPlayer(List<Player> plist)
+    {
+        Player p = GetClosestPlayer(plist);
+        MagnetizeByPlayer(p);
+    }
 
     public float GetMagnetRange()
     {

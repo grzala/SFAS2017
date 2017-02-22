@@ -3,9 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Networking;
 
-using System.Collections.Generic;
-
-public class GameManager : MonoBehaviour
+public class GameManager : NetworkBehaviour
 {
     public enum State { Paused, Playing }
 
@@ -67,141 +65,165 @@ public class GameManager : MonoBehaviour
 
     }
 
-    void Update()
+    private void DeleteInactivePlayers()
     {
-        if (mState == State.Playing)
+        //delete disconnected players
+        foreach (Player p in players)
         {
+            if (p == null)
+                players.Remove(p);
+        }
+    }
 
-            MagnetizedByPlayer[] temp = GetComponentsInChildren<MagnetizedByPlayer>();
-            List<MagnetizedByPlayer> childrenCubes = new List<MagnetizedByPlayer>();
-            foreach (MagnetizedByPlayer cube in temp)
-            {
-                if (cube.getMagnetType() == MagnetizedByPlayer.Type.Attract)
-                {
-                    childrenCubes.Add(cube);
-                }
-            }
-
-            //UpdatePoints
-            nextScoreCount -= Time.deltaTime;
-            if (nextScoreCount <= 0)
-            {
-                nextScoreCount = SCORE_COUNT_FREQUENCY;
-                foreach (Player player in players)
-                {
-                    if (player == null)
-                    {
-                        if (scores[player] != null)
-                        {
-                            scores.Remove(player);
-                        }
-                        continue;
-                    }
-                    if (!scores.ContainsKey(player))
-                    {
-                        scores[player] = 0;
-                    }
-
-                    scores[player] += GetPlayerCubes(player).Length;
-                    player.score = scores[player];
-
-                    if (scores[player] > scoreGoal)
-                        EndGame();
-                }
-            }
-
-
-
+    private void UpdateScores()
+    {
+        //UpdatePoints
+        nextScoreCount -= Time.deltaTime;
+        if (nextScoreCount <= 0)
+        {
+            nextScoreCount = SCORE_COUNT_FREQUENCY;
             foreach (Player player in players)
             {
                 if (player == null)
                 {
+                    if (scores.ContainsKey(player))
+                    {
+                        scores.Remove(player);
+                    }
                     continue;
                 }
-
-                //UPDATE CUBES
-                player.cubesLeft = GetPlayerCubes(player).Length;
-
-                //RELOAD
-                if (player.shotsLeft <= 0 && player.cubesLeft > 0)
+                if (!scores.ContainsKey(player))
                 {
-                    DeleteRandomPlayerCube(player);
-                    player.shotsLeft += Player.SHOTS_PER_RELOAD;
-                }
-                
-                //UPDATE SHIELD
-                //shield.transform.position = new Vector3(0, 100, 0);
-                bool shielding = player.shielding;
-                Shield shield = null; // = player.GetComponentInChildren<Shield>();
-                //shield.gameObject.SetActive((bool)shielding);
-
-                foreach (Transform child in player.transform)
-                {
-                    
-                    shield = child.GetComponent<Shield>();
-                    if (shield != null)
-                        break;
-                    
+                    scores[player] = 0;
                 }
 
-                if (shield != null)
-                {
-                    //reload
-                    if (player.shieldingTimeLeft <= 0 && GetPlayerCubes(player).Length > 0)
-                    {
-                        DeleteRandomPlayerCube(player);
-                        player.shieldingTimeLeft += Player.SHIELDING_TIME;
-                    }
+                scores[player] += GetPlayerCubes(player).Length;
+                player.score = scores[player];
 
-                    if (!shielding || player.shieldingTimeLeft <= 0)
-                    {
-                        shield.transform.position = new Vector3(0, -300, 0);
-                    }
-                    else
-                    {
-                        shield.transform.position = player.transform.position;
+                if (scores[player] > scoreGoal)
+                    EndGame();
+            }
+        }
+    }
 
-                        Vector3 offset = new Vector3(Mathf.Cos(player.angle) * Player.shieldDistanceFromPlayer, 0.0f, Mathf.Sin(player.angle) * Player.shieldDistanceFromPlayer);
-                        //shield.transform.position = transform.position;
-                        shield.transform.position = shield.transform.position + offset;
-
-                        float degrees = Mathf.Atan2(-offset.z, offset.x);
-                        degrees *= (180 / Mathf.PI);
-                        //this prevents from rotating wrong way
-
-                        Vector3 rot = shield.transform.eulerAngles;
-                        shield.transform.rotation = Quaternion.Euler(rot.x, 0, degrees);
-
-                        player.shieldingTimeLeft -= Time.deltaTime;
-
-                    }
-                }
+    private void UpdatePlayers()
+    { 
+        foreach (Player player in players)
+        {
+            if (player == null)
+            {
+                continue;
             }
 
+            //UPDATE CUBES
+            player.cubesLeft = GetPlayerCubes(player).Length;
+
+            //RELOAD
+            if (player.shotsLeft <= 0 && player.cubesLeft > 0)
+            {
+                DeleteRandomPlayerCube(player);
+                player.shotsLeft += Player.SHOTS_PER_RELOAD;
+            }
+
+            //UPDATE SHIELD
+            //shield.transform.position = new Vector3(0, 100, 0);
+            bool shielding = player.shielding;
+            Shield shield = null; // = player.GetComponentInChildren<Shield>();
+            //shield.gameObject.SetActive((bool)shielding);
+
+            foreach (Transform child in player.transform)
+            {
+
+                shield = child.GetComponent<Shield>();
+                if (shield != null)
+                    break;
+
+            }
+
+            if (shield != null)
+            {
+                //reload
+                if (player.shieldingTimeLeft <= 0 && GetPlayerCubes(player).Length > 0)
+                {
+                    DeleteRandomPlayerCube(player);
+                    player.shieldingTimeLeft += Player.SHIELDING_TIME;
+                }
+
+                if (!shielding || player.shieldingTimeLeft <= 0)
+                {
+                    shield.transform.position = new Vector3(0, -300, 0);
+                }
+                else
+                {
+                    shield.transform.position = player.transform.position;
+
+                    Vector3 offset = new Vector3(Mathf.Cos(player.angle) * Player.shieldDistanceFromPlayer, 0.0f, Mathf.Sin(player.angle) * Player.shieldDistanceFromPlayer);
+                    //shield.transform.position = transform.position;
+                    shield.transform.position = shield.transform.position + offset;
+
+                    float degrees = Mathf.Atan2(-offset.z, offset.x);
+                    degrees *= (180 / Mathf.PI);
+                    //this prevents from rotating wrong way
+
+                    Vector3 rot = shield.transform.eulerAngles;
+                    shield.transform.rotation = Quaternion.Euler(rot.x, 0, degrees);
+
+                    player.shieldingTimeLeft -= Time.deltaTime;
+
+                }
+            }
+        }
+    }
+
+    private void UpdateCubes()
+    {
+
+    }
+
+    private void SpawnCubesAndPowerups()
+    {
+        mNextSpawn -= Time.deltaTime;
+        if( mNextSpawn <= 0.0f )
+        {
+            if (mObjects == null)
+            {
+                mObjects = new List<GameObject>();
+            }
+
+            GameObject spawnObject = SpawnPrefabs[1];
+            GameObject spawnedInstance = Instantiate(spawnObject);
+            spawnedInstance.transform.parent = transform;
+            SetRandomPos(spawnedInstance);
+
+            mObjects.Add(spawnedInstance);
+            mNextSpawn = TimeBetweenSpawns;
+            NetworkServer.Spawn(spawnedInstance);
+        }
+    }
+
+    void Update()
+    {
+        //run this only on server
+        if (isLocalPlayer)
+            return;
+
+        DeleteInactivePlayers();
+
+        if (mState == State.Playing)
+        {
+
+            UpdateScores();
+
+            UpdatePlayers();
+
+            UpdateCubes();
+
+           
             //update HUD
             //HUD hud = GameObject.Find("/HUD").GetComponent<HUD>();
             //hud.setCubes(childrenCubes.Count);
 
-			
-            mNextSpawn -= Time.deltaTime;
-            if( mNextSpawn <= 0.0f )
-            {
-                if (mObjects == null)
-                {
-                    mObjects = new List<GameObject>();
-                }
-
-                GameObject spawnObject = SpawnPrefabs[1];
-                GameObject spawnedInstance = Instantiate(spawnObject);
-                spawnedInstance.transform.parent = transform;
-                SetRandomPos(spawnedInstance);
-
-                mObjects.Add(spawnedInstance);
-                mNextSpawn = TimeBetweenSpawns;
-                NetworkServer.Spawn(spawnedInstance);
-            }
-
-
+            SpawnCubesAndPowerups();
         }
     }
 
@@ -248,7 +270,7 @@ public class GameManager : MonoBehaviour
         foreach (MagnetizedByPlayer cube in GetPlayerCubes(p))
         {
             GameObject spawnedInstance = Instantiate(SpawnPrefabs[1], transform);
-            spawnedInstance.transform.position = new Vector3(0.0f, 3.0f, 0.0f);
+            spawnedInstance.transform.position = new Vector3(0.0f, 4.0f, 0.0f);
             spawnedInstance.transform.position = cube.transform.position + new Vector3(0, cube.GetComponent<Renderer>().bounds.size.y, 0);
             spawnedInstance.GetComponent<Rigidbody>().velocity = cube.GetComponent<Rigidbody>().velocity;
         }
@@ -270,6 +292,11 @@ public class GameManager : MonoBehaviour
         return temp.ToArray();
     }
 
+    public MagnetizedByPlayer[] GetAllCubes()
+    {
+        return GetComponentsInChildren<MagnetizedByPlayer>();
+    }
+
     public void DeleteRandomPlayerCube(Player p)
     {
         MagnetizedByPlayer[] cubes = GetPlayerCubes(p);
@@ -289,7 +316,6 @@ public class GameManager : MonoBehaviour
             obj.transform.position = new Vector3(pos.x, obj.transform.position.y, pos.y);
 
         } while(!CanSpawn(obj));
-
     }
 
     public bool CanSpawn(GameObject obj)
@@ -309,18 +335,15 @@ public class GameManager : MonoBehaviour
 
         foreach (GameObject obj2 in collidableObjects)
         {
-
             if (obj2 == obj)
                 continue;
 
             if (obj2.GetComponent<Collider>().bounds.Intersects(obj.GetComponent<Collider>().bounds))
-                {
-                    canSpawn = false;
-                    break;
-                }
-
+            {
+                canSpawn = false;
+                break;
+            }
         }
-
 
         return canSpawn;
     }
