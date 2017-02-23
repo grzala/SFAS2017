@@ -31,7 +31,8 @@ public class Powerup : MonoBehaviour {
         SPEED_UP,
         SLOW_DOWN,
 		INVERSE,
-		DOUBLE_CUBES
+		DOUBLE_CUBES,
+        HALVE_CUBES
     }
 
     public enum Target
@@ -48,7 +49,7 @@ public class Powerup : MonoBehaviour {
         current_bounce = bounce_bottom;		
         PopulateTexNames();
 
-        type = Type.SPEED_UP;
+        type = Type.HALVE_CUBES;
         target = Target.SELF;
 
         SetColor();
@@ -59,8 +60,9 @@ public class Powerup : MonoBehaviour {
     {
         textureNames.Add(Type.SPEED_UP, "speed_up");
 		textureNames.Add(Type.SLOW_DOWN, "slow_down");
-		textureNames.Add(Type.INVERSE, "inverse");
+        textureNames.Add(Type.INVERSE, "inverse");
         textureNames.Add(Type.DOUBLE_CUBES, "double");
+        textureNames.Add(Type.HALVE_CUBES, "halve");
     }
 
     public void SetType(Type type, Target target)

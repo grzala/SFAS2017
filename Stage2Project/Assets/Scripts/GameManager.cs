@@ -299,6 +299,31 @@ public class GameManager : NetworkBehaviour
         }
 	}
 
+    public void HalveCubes(Player p)
+    {
+        //THIS SCRIPTS CONTROLS  T H E  C U B E S
+        //COMPARED TO IT, YOU ARE NOTHING
+
+        MagnetizedByPlayer[] cubes = GetPlayerCubes(p);
+        int cubesNo = cubes.Length;
+
+        if (cubesNo < 2) return;
+
+        List<int> todestroy = new List<int>();
+        while (todestroy.Count < cubesNo / 2)
+        {
+            int rand = Random.Range(0, cubesNo);
+
+            if (!todestroy.Contains(rand))
+                todestroy.Add(rand);
+        }
+
+        foreach (int i  in todestroy)
+        {
+            Destroy(cubes[i].gameObject);
+        }
+    }
+
     public MagnetizedByPlayer[] GetPlayerCubes(Player p)
     {
         MagnetizedByPlayer[] cubes = GetComponentsInChildren<MagnetizedByPlayer>();

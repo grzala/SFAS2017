@@ -32,6 +32,7 @@ public class PowerupHandler : MonoBehaviour {
         durations.Add(Powerup.Type.SLOW_DOWN, 5.0f);
         durations.Add(Powerup.Type.INVERSE, 3.0f);
         durations.Add(Powerup.Type.DOUBLE_CUBES, 0.1f);
+        durations.Add(Powerup.Type.HALVE_CUBES, 0.1f);
     }
 	
 	// Update is called once per frame
@@ -116,6 +117,12 @@ public class PowerupHandler : MonoBehaviour {
                 if (toggle)
                 {
                     GetComponent<GameManager>().DoubleCubes(b.target);
+                }
+                break;
+            case Powerup.Type.HALVE_CUBES:
+                if (toggle)
+                {
+                    GetComponent<GameManager>().HalveCubes(b.target);
                 }
                 break;
                 
