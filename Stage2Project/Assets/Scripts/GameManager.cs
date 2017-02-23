@@ -39,6 +39,9 @@ public class GameManager : NetworkBehaviour
     private State mState;
     private float mNextSpawn;
 
+    private float mNextPowerupSpawn;
+    private float TimeBetweenPowerupSpawns = 5.0f;
+
     private int cubesLeft;
 
     public List<Player> players = new List<Player>();
@@ -55,6 +58,9 @@ public class GameManager : NetworkBehaviour
 
         ScreenManager.OnNewGame += ScreenManager_OnNewGame;
 		ScreenManager.OnExitGame += ScreenManager_OnExitGame;
+
+        mNextSpawn = TimeBetweenSpawns;
+        mNextPowerupSpawn = TimeBetweenPowerupSpawns
 
 
     }
@@ -193,7 +199,8 @@ public class GameManager : NetworkBehaviour
     private void SpawnCubesAndPowerups()
     {
         mNextSpawn -= Time.deltaTime;
-        if(mNextSpawn <= 0.0f && GetAllCubes().Length < MAX_CUBES)
+        mNextPowerupSpawn -= Time.deltaTime;
+        if (mNextSpawn <= 0.0f && GetAllCubes().Length < MAX_CUBES)
         {
             if (mObjects == null)
             {
@@ -207,8 +214,11 @@ public class GameManager : NetworkBehaviour
 
             mObjects.Add(spawnedInstance);
             mNextSpawn = TimeBetweenSpawns;
-            NetworkServer.Spawn(spawnedInstance);
+            NetworkServer.Spawn(spawnedInstance);   
+        }
 
+        if (mNextPowerupSpawn <= 0.0f)
+        {
             GameObject powerupSpawn = PowerupPrefab;
             GameObject powerupInstance = Instantiate(powerupSpawn);
             powerupInstance.transform.parent = transform;
@@ -218,7 +228,7 @@ public class GameManager : NetworkBehaviour
             SetRandomPos(powerupInstance);
 
             mObjects.Add(powerupInstance);
-            mNextSpawn = TimeBetweenSpawns;
+            mNextPowerupSpawn = TimeBetweenPowerupSpawns;
             NetworkServer.Spawn(powerupInstance);
 
         }
