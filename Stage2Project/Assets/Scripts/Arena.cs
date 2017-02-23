@@ -11,6 +11,11 @@ public class Arena : MonoBehaviour
     public static float Width { get; private set; }
     public static float Height { get; private set; }
 
+	public void Awake()
+	{
+		Calculate();
+	}
+
     void Update()
     {
 #if UNITY_EDITOR 
@@ -28,13 +33,13 @@ public class Arena : MonoBehaviour
         {
             Height = CameraUtils.FrustumHeightAtDistance(Cam.farClipPlane - 1.0f, Cam.fieldOfView);
             Width = Height * Cam.aspect;
-            transform.localScale = new Vector3(Width * 0.1f, 1.0f, Height * 0.1f);
+            //transform.localScale = new Vector3(Width * 0.1f, 1.0f, Height * 0.1f);
         }
     }
 
     public Vector2 GetRandomAvailableSpawnPoint()
     {
-        Calculate();
+        //Calculate();
         Vector2 point = new Vector2(0, 0);
 
         float x = Random.Range(-Width/2, Width/2);

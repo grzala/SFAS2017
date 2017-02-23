@@ -144,24 +144,28 @@ public class Player : NetworkBehaviour
     {
         Vector3 direction = Vector3.zero;
 
-        //Shield shield = NetworkServer.FindLocalObject(shieldId).GetComponent<Shield>();
+        //left = right = up = down = false;
 
         if (Input.GetKey(KeyCode.A))
         {
-			direction += !inverted ? Vector3.left : Vector3.right;
+		    direction += !inverted ? Vector3.left : Vector3.right;
+            //left = true;
         }
         else if (Input.GetKey(KeyCode.D))
         {
-			direction += !inverted ? Vector3.right : Vector3.left;
+            direction += !inverted ? Vector3.right : Vector3.left;
+            //right = true;
         }
 
         if (Input.GetKey(KeyCode.W))
 		{
-			direction += !inverted ? Vector3.forward : -Vector3.forward;
+            direction += !inverted ? Vector3.forward : -Vector3.forward;
+            //up = true;
         }
         else if (Input.GetKey(KeyCode.S))
 		{
-			direction += !inverted ? -Vector3.forward : Vector3.forward;
+            direction += !inverted ? -Vector3.forward : Vector3.forward;
+            //down = true;
         }
 
         float speed_to_add = accel;
@@ -174,7 +178,7 @@ public class Player : NetworkBehaviour
         
         
         mBody.AddForce(direction * speed_to_add * Time.deltaTime);
-        maintainMaxSpeed();
+        //maintainMaxSpeed();
         //Accelerate(direction * speed_to_add * Time.deltaTime);
 
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition); //Input.mousePosition);

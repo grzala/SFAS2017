@@ -17,6 +17,9 @@ public class GameManager : NetworkBehaviour
     private Player PlayerPrefab;
 
     [SerializeField]
+    private GameObject PowerupPrefab;
+
+    [SerializeField]
     private Player player;
 
     [SerializeField]
@@ -29,6 +32,7 @@ public class GameManager : NetworkBehaviour
     private float nextScoreCount;
     private const float SCORE_COUNT_FREQUENCY = 1.5f;
     private int scoreGoal = 100;
+    private int MAX_CUBES = 25;
 
     private List<GameObject> mObjects;
     private Player mPlayer;
@@ -115,6 +119,7 @@ public class GameManager : NetworkBehaviour
                 continue;
             }
 
+
             //UPDATE CUBES
             player.cubesLeft = GetPlayerCubes(player).Length;
 
@@ -177,13 +182,18 @@ public class GameManager : NetworkBehaviour
 
     private void UpdateCubes()
     {
+        MagnetizedByPlayer[] cubes = GetAllCubes();
+        foreach (MagnetizedByPlayer cube in cubes)
+        {
+            cube.UpdateMagnet(players);
+        }
 
     }
 
     private void SpawnCubesAndPowerups()
     {
         mNextSpawn -= Time.deltaTime;
-        if( mNextSpawn <= 0.0f )
+        if(mNextSpawn <= 0.0f && GetAllCubes().Length < MAX_CUBES)
         {
             if (mObjects == null)
             {
@@ -198,13 +208,26 @@ public class GameManager : NetworkBehaviour
             mObjects.Add(spawnedInstance);
             mNextSpawn = TimeBetweenSpawns;
             NetworkServer.Spawn(spawnedInstance);
+
+            GameObject powerupSpawn = PowerupPrefab;
+            GameObject powerupInstance = Instantiate(powerupSpawn);
+            powerupInstance.transform.parent = transform;
+
+            powerupInstance.GetComponent<Powerup>().SetRandomType();
+
+            SetRandomPos(powerupInstance);
+
+            mObjects.Add(powerupInstance);
+            mNextSpawn = TimeBetweenSpawns;
+            NetworkServer.Spawn(powerupInstance);
+
         }
     }
 
     void Update()
     {
         //run this only on server
-        if (isLocalPlayer)
+        if (isLocalPlayer || !isServer)
             return;
 
         DeleteInactivePlayers();

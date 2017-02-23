@@ -44,7 +44,7 @@ public class Powerup : MonoBehaviour {
     private Dictionary<Type, string> textureNames = new Dictionary<Type, string>();
 
 	// Use this for initialization
-	void Start () {
+	void Awake () {
         current_bounce = bounce_bottom;		
         PopulateTexNames();
 
@@ -70,6 +70,18 @@ public class Powerup : MonoBehaviour {
 
         SetColor();
         SetIcon();
+    }
+
+    public void SetRandomType()
+    {
+        System.Array types = Type.GetValues(typeof(Type));
+        Type rntype = (Type)types.GetValue(Random.Range(0, types.Length));
+
+        System.Array targets = Target.GetValues(typeof(Target));
+        Target rntargert = (Target)targets.GetValue(Random.Range(0, 2));
+
+        SetType(rntype, rntargert);
+
     }
 
     private void SetColor()

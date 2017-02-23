@@ -1,9 +1,10 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Networking;
 
 [RequireComponent(typeof(Rigidbody))]
-public class MagnetizedByPlayer : MonoBehaviour
+public class MagnetizedByPlayer : NetworkBehaviour
 {
     public enum Type { Attract, Repel }
 
@@ -27,34 +28,35 @@ public class MagnetizedByPlayer : MonoBehaviour
 
 	void Update()
     {
-        //THIS CANNOT RUN ON UPDATE - MUST RUN ON SERVER SIDE, PUT THIS IN METHOD CALL THIS FROM GAMEMANAGER.UPDATE
 
-        //mPlayer is the closest of All players - should this be magnetized by all players, or just closest one?
-        //All Magnetized are children of gamemanager
-        GameManager gameManager = transform.parent.GetComponent<GameManager>();
-        float distance = float.MaxValue;
-        Player closestPlayer = null;
+	}
 
-        foreach (Player p in gameManager.players) 
-        {
-            float temp = Vector3.Distance(p.transform.position, transform.position);
-            if (temp < distance)
-            {
-                closestPlayer = p;
-                distance = temp;
-            }
-        }
 
-        mPlayer = closestPlayer;
+    public void UpdateMagnet(List<Player> players)
+	{
+		float distance = float.MaxValue;
+		Player closestPlayer = null;
 
-        if (mPlayer != null)
-        {
-            Vector3 difference = MagnetizeType == Type.Repel ? transform.position - mPlayer.transform.position : mPlayer.transform.position - transform.position;
-            if( difference.magnitude <= MinimumDistance )
-            {
-                mBody.AddForce(difference * RepelForce * Time.deltaTime);
-            }
-        }		
+		foreach (Player p in players) 
+		{
+			float temp = Vector3.Distance(p.transform.position, transform.position);
+			if (temp < distance)
+			{
+				closestPlayer = p;
+				distance = temp;
+			}
+		}
+
+		mPlayer = closestPlayer;
+
+		if (mPlayer != null)
+		{
+			Vector3 difference = MagnetizeType == Type.Repel ? transform.position - mPlayer.transform.position : mPlayer.transform.position - transform.position;
+			if( difference.magnitude <= MinimumDistance )
+			{
+				mBody.AddForce(difference * RepelForce * Time.deltaTime);
+			}
+		}	
 	}
 
     public Player GetClosestPlayer(List<Player> plist)
