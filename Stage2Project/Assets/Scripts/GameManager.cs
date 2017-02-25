@@ -60,7 +60,7 @@ public class GameManager : NetworkBehaviour
 		ScreenManager.OnExitGame += ScreenManager_OnExitGame;
 
         mNextSpawn = TimeBetweenSpawns;
-        mNextPowerupSpawn = TimeBetweenPowerupSpawns
+        mNextPowerupSpawn = TimeBetweenPowerupSpawns;
 
 
     }
