@@ -7,8 +7,14 @@ using UnityEngine.UI;
 public class LobbyPlayer : NetworkBehaviour {
 
     public int connectionId;
-    public bool ready = false;
     private bool initialized = false;
+
+    [SyncVar]
+    public bool ready = false;
+
+    [SerializeField]
+    private Text readyText;
+
 
 	// Use this for initialization
 	void Start () {
@@ -16,12 +22,6 @@ public class LobbyPlayer : NetworkBehaviour {
         GameObject list = GameObject.Find("List");
         transform.SetParent(list.transform, false);
 	}
-
-    public void SetReady()
-    {
-        print("ready");
-        print(connectionId);
-    }
 
 	// Update is called once per frame
 	void Update () {
@@ -35,13 +35,18 @@ public class LobbyPlayer : NetworkBehaviour {
 
     public void OnClickReady()
     {
-        CmdToggleReady(true);
+        CmdToggleReady(!ready);
     }
 
     [Command]
     public void CmdToggleReady(bool toggle)
     {
-        print(connectionId);
+        ready = toggle;
+
+        if (ready)
+            readyText.text = "Ready";
+        else
+            readyText.text = "NotReady";
     }
 
     public void InitializeLocal()

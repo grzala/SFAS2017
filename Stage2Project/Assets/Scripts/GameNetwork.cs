@@ -119,4 +119,33 @@ public class GameNetwork : NetworkManager {
             UI.UpdateInfo("client", networkAddress);
         }
     }
+
+    public override void OnServerRemovePlayer(NetworkConnection conn, PlayerController player)
+    {
+        RemovePlayer(conn.connectionId);
+    }
+
+    public override void OnServerDisconnect(NetworkConnection conn)
+    {
+        RemovePlayer(conn.connectionId);
+    }
+
+    public void RemovePlayer(int connectionId)
+    {
+        bool destroy = false;
+        int iToDestroy = 0;
+
+        for (int i = 0; i < players.Count; i++)
+        {
+            if (players[i].connectionId == connectionId)
+            {
+                iToDestroy = i;
+                destroy = true;
+            }
+        }
+
+        LobbyPlayer p = players[iToDestroy];
+        players.RemoveAt(iToDestroy);
+        Destroy(p.gameObject);
+    }
 }
