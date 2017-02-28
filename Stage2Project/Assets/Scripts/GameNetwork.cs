@@ -27,6 +27,15 @@ public class GameNetwork : NetworkManager {
         return players;
     }
 
+    public LobbyPlayer GetLocalPlayer()
+    {
+        foreach (LobbyPlayer p in players)
+        {
+            print(p.connectionId);
+        }
+        return null;
+    }
+
     public override void OnServerAddPlayer(NetworkConnection conn, short playerControllerId)
     {
         /*
@@ -51,13 +60,13 @@ public class GameNetwork : NetworkManager {
         players.Add(lp);
         connections.Add(conn, playerControllerId);
 
-        NetworkServer.Spawn(lp.gameObject);
+        NetworkServer.SpawnWithClientAuthority(lp.gameObject, conn);
 
     }
 	
 	// Update is called once per frame
 	void Update () {
-		
+        
 	}
 
     public void StartGame() {
@@ -65,6 +74,14 @@ public class GameNetwork : NetworkManager {
             return;
 
         ServerChangeScene("Game");
+    }
+
+    public void QuitServer() 
+    {
+        adminId = -1;
+        players = new List<LobbyPlayer>();
+        connections = new Dictionary<NetworkConnection, short>();
+        StopHost();
     }
 
     public override void OnServerSceneChanged(string SceneName)

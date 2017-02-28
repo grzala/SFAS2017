@@ -8,22 +8,48 @@ public class LobbyPlayer : NetworkBehaviour {
 
     public int connectionId;
     public bool ready = false;
-    public 
+    private bool initialized = false;
 
 	// Use this for initialization
 	void Start () {
         print("localplayerspawning");
-        transform.SetParent(GameObject.Find("List").transform, false);
+        GameObject list = GameObject.Find("List");
+        transform.SetParent(list.transform, false);
 	}
 
-    public override void OnStartLocalPlayer()
+    public void SetReady()
     {
+        print("ready");
+        print(connectionId);
     }
 
 	// Update is called once per frame
 	void Update () {
-		
+        if (!initialized && hasAuthority)
+        {
+            InitializeLocal();
+
+            initialized = true;
+        }
 	}
+
+    public void OnClickReady()
+    {
+        CmdToggleReady(true);
+    }
+
+    [Command]
+    public void CmdToggleReady(bool toggle)
+    {
+        print(connectionId);
+    }
+
+    public void InitializeLocal()
+    {
+        Button ready = transform.parent.parent.Find("Ready").GetComponent<Button>();
+        ready.onClick.AddListener(() => OnClickReady());
+    }
+
 
     [ClientRpc]
     public void RpcGameUI() {

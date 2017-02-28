@@ -48,6 +48,13 @@ public class LobbyUI : MonoBehaviour {
         net.StartGame();
     }
 
+    public void OnClickBack()
+    {
+        net.QuitServer();
+        TransitionTo(mainPanel);
+        UpdateInfo("offline", "none");
+    }
+
     public void UpdateInfo(string status, string hosting)
     {
         this.status.text = status;
