@@ -15,6 +15,8 @@ public class ScreenManager : MonoBehaviour
 
     void Awake()
     {
+        DontDestroyOnLoad(gameObject);
+
         mScreens = new Canvas[(int)Screens.NumScreens];
         Canvas[] screens = GetComponentsInChildren<Canvas>();
         for (int count = 0; count < screens.Length; ++count)

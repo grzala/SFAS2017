@@ -227,9 +227,17 @@ public class GameManager : NetworkBehaviour
 
             SetRandomPos(powerupInstance);
 
-            mObjects.Add(powerupInstance);
             mNextPowerupSpawn = TimeBetweenPowerupSpawns;
-            NetworkServer.Spawn(powerupInstance);
+
+            if (powerupInstance != null)
+            {
+                NetworkServer.Spawn(powerupInstance);
+                //mObjects.Add(powerupInstance);
+            }
+            else
+            {
+                Destroy(gameObject, 0.1f);
+            }
 
         }
     }
@@ -271,9 +279,9 @@ public class GameManager : NetworkBehaviour
             mObjects.Clear();
         }
 
-        mPlayer.transform.position = new Vector3(0.0f, 0.5f, 0.0f);
+        //mPlayer.transform.position = new Vector3(0.0f, 0.5f, 0.0f);
         mNextSpawn = TimeBetweenSpawns;
-        mPlayer.enabled = true;
+        //mPlayer.enabled = true;
         mState = State.Playing;
     }
 

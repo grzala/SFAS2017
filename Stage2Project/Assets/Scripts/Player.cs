@@ -64,7 +64,7 @@ public class Player : NetworkBehaviour
     public override void OnStartLocalPlayer() {
         CmdCreateShield();
 
-		Camera.main.GetComponent<LevelCamera>().Follow(this.gameObject);
+        GameObject.Find("LevelCamera").GetComponent<LevelCamera>().Follow(this.gameObject);
         //shield = NetworkServer.FindLocalObject(shieldId).GetComponent<Shield>();
         //shield.transform.parent = transform;
 
@@ -181,7 +181,7 @@ public class Player : NetworkBehaviour
         //maintainMaxSpeed();
         //Accelerate(direction * speed_to_add * Time.deltaTime);
 
-        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition); //Input.mousePosition);
+        Ray ray = GameObject.Find("LevelCamera").GetComponent<Camera>().ScreenPointToRay(Input.mousePosition); //Input.mousePosition);
         Debug.DrawRay(ray.origin, ray.direction * 1000, Color.yellow);
 
         RaycastHit hit;
