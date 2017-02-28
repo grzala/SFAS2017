@@ -220,18 +220,18 @@ public class GameManager : NetworkBehaviour
         if (mNextPowerupSpawn <= 0.0f)
         {
             GameObject powerupSpawn = PowerupPrefab;
-            GameObject powerupInstance = Instantiate(powerupSpawn);
+            Powerup powerupInstance = (Powerup)Instantiate(powerupSpawn).GetComponent<Powerup>();
             powerupInstance.transform.parent = transform;
 
             powerupInstance.GetComponent<Powerup>().SetRandomType();
 
-            SetRandomPos(powerupInstance);
+            SetRandomPos(powerupInstance.gameObject);
 
             mNextPowerupSpawn = TimeBetweenPowerupSpawns;
 
             if (powerupInstance != null)
             {
-                NetworkServer.Spawn(powerupInstance);
+                NetworkServer.Spawn(powerupInstance.gameObject);
                 //mObjects.Add(powerupInstance);
             }
             else

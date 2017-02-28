@@ -9,7 +9,8 @@ public class GameNetwork : NetworkManager {
     [SerializeField]
     private GameObject LobbyPlayerPrefab;
 
-    private Dictionary<NetworkConnection, LobbyPlayer> players = new Dictionary<NetworkConnection, LobbyPlayer>();
+    private int adminId = -1;
+    private List<LobbyPlayer> players = new List<LobbyPlayer>();
     private Dictionary<NetworkConnection, short> connections = new Dictionary<NetworkConnection, short>();
 
     private LobbyUI UI;
@@ -23,7 +24,7 @@ public class GameNetwork : NetworkManager {
 
     public List<LobbyPlayer> GetPlayers()
     {
-        return new List<LobbyPlayer>(players.Values);
+        return players;
     }
 
     public override void OnServerAddPlayer(NetworkConnection conn, short playerControllerId)
@@ -36,12 +37,21 @@ public class GameNetwork : NetworkManager {
 
             game.GetComponent<GameManager>().players.Add(player.GetComponent<Player>());
         */
+        print("adding a player");
+        LobbyPlayer lp = (LobbyPlayer)Instantiate(LobbyPlayerPrefab).GetComponent<LobbyPlayer>();
+        lp.transform.SetParent(UI.list.transform, false);
 
-        LobbyPlayer lp = (LobbyPlayer)Instantiate(LobbyPlayerPrefab, transform).GetComponent<LobbyPlayer>();
-        NetworkServer.Spawn(lp.gameObject);
+        lp.connectionId = conn.connectionId;
 
-        players.Add(conn, lp);
+        if (adminId < 0 || players.Count < 1)
+        {
+            adminId = lp.connectionId;
+        }
+
+        players.Add(lp);
         connections.Add(conn, playerControllerId);
+
+        NetworkServer.Spawn(lp.gameObject);
 
     }
 	
@@ -71,7 +81,7 @@ public class GameNetwork : NetworkManager {
                 game.GetComponent<GameManager>().players.Add(player.GetComponent<Player>());
             }
 
-            GetComponent<LobbyUI>().HideAllLobbyUI(new List<LobbyPlayer>(players.Values));
+            GetComponent<LobbyUI>().HideAllLobbyUI(players);
         }
     }
 

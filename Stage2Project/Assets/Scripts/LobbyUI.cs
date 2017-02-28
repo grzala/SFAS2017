@@ -1,10 +1,9 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Networking;
 using UnityEngine.UI;
 
-public class LobbyUI : NetworkBehaviour {
+public class LobbyUI : MonoBehaviour {
 
     [SerializeField]
     private Text status;
@@ -20,6 +19,8 @@ public class LobbyUI : NetworkBehaviour {
     public Canvas mainPanel;
     [SerializeField]
     public Canvas playerList;
+    [SerializeField]
+    public GameObject list;
 
 	// Use this for initialization
 	void Start () {
@@ -80,4 +81,5 @@ public class LobbyUI : NetworkBehaviour {
             }
         }
     }
+
 }
