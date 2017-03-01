@@ -13,6 +13,7 @@ public class ScreenManager : MonoBehaviour
 
     private Canvas [] mScreens;
     private Screens mCurrentScreen;
+    private Screens mPreviousScreen;
 
     void Awake()
     {
@@ -38,6 +39,7 @@ public class ScreenManager : MonoBehaviour
         }
 
         mCurrentScreen = Screens.TitleScreen;
+        mPreviousScreen = mCurrentScreen;
         mScreens[(int)mCurrentScreen].enabled = true;
     }
 
@@ -71,6 +73,16 @@ public class ScreenManager : MonoBehaviour
         TransitionTo(Screens.PauseScreen);
     }
 
+    public void OnClickResume()
+    {
+        GoBack();
+    }
+
+    public void OnGameEnd()
+    {
+        TransitionTo(Screens.ResultScreen);
+    }
+
     public void OnClickExit()
     {
         GameObject.Find("Lobby").GetComponent<GameNetwork>().QuitServer();
@@ -90,8 +102,14 @@ public class ScreenManager : MonoBehaviour
 
     private void TransitionTo(Screens screen)
     {
+        mPreviousScreen = mCurrentScreen;
         mScreens[(int)mCurrentScreen].enabled = false;
         mScreens[(int)screen].enabled = true;
         mCurrentScreen = screen;
+    }
+
+    public void GoBack()
+    {
+        TransitionTo(mPreviousScreen);
     }
 }

@@ -5,7 +5,7 @@ using UnityEngine.Networking;
 
 public class GameManager : NetworkBehaviour
 {
-    public enum State { Paused, Playing }
+    public enum State { Paused, Playing, Finished }
 
     [SerializeField]
     private GameObject [] SpawnPrefabs;
@@ -46,6 +46,9 @@ public class GameManager : NetworkBehaviour
 
     public List<Player> players = new List<Player>();
 
+    private float timePassed = 0.0f;
+    private float gameTime = 10.0f; //in seconds
+
     void Awake()
     {
         //mPlayer = Instantiate(PlayerPrefab);
@@ -72,6 +75,7 @@ public class GameManager : NetworkBehaviour
 		//mState = State.Paused;
         mState = State.Playing;
         nextScoreCount = SCORE_COUNT_FREQUENCY;
+
 
     }
 
@@ -262,6 +266,21 @@ public class GameManager : NetworkBehaviour
             //hud.setCubes(childrenCubes.Count);
 
             SpawnCubesAndPowerups();
+
+            timePassed += Time.deltaTime;
+
+            if (timePassed >= gameTime)
+            {
+                mState = State.Finished;
+
+                GameObject.Find("ScreenManager").GetComponent<ScreenManager>().OnGameEnd();
+            
+            }
+            
+        }
+        else if (mState == State.Finished)
+        {
+
         }
     }
 
