@@ -248,6 +248,8 @@ public class GameManager : NetworkBehaviour
         if (isLocalPlayer || !isServer)
             return;
 
+        print(isServer);
+
         DeleteInactivePlayers();
 
         if (mState == State.Playing)
