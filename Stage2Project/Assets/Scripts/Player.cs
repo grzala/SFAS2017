@@ -70,6 +70,7 @@ public class Player : NetworkBehaviour
     void Awake()
     {
         mBody = GetComponent<Rigidbody>();
+        transform.position = new Vector3(0, 2, 0);
     }
 
     public override void OnStartLocalPlayer() {
@@ -287,7 +288,7 @@ public class Player : NetworkBehaviour
 
         spawnedInstance.transform.parent = transform.parent; 
 
-        Vector3 offset = new Vector3(Mathf.Cos(angle) * bulletDistanceFromPlayer, 0.0f, Mathf.Sin(angle) * bulletDistanceFromPlayer);
+        Vector3 offset = new Vector3(Mathf.Cos(angle) * bulletDistanceFromPlayer, 0.5f, Mathf.Sin(angle) * bulletDistanceFromPlayer);
         spawnedInstance.transform.position = transform.position;
         spawnedInstance.transform.position = spawnedInstance.transform.position + offset;
 

@@ -33,7 +33,8 @@ public class GameManager : NetworkBehaviour
     private float nextScoreCount;
     private const float SCORE_COUNT_FREQUENCY = 1.5f;
     private int scoreGoal = 100;
-    private int MAX_CUBES = 25;
+    private int MAX_CUBES = 40;
+    private int MAX_POWERUPS = 10;
 
     private List<GameObject> mObjects;
     private Player mPlayer;
@@ -48,7 +49,7 @@ public class GameManager : NetworkBehaviour
     public List<Player> players = new List<Player>();
 
     private float timePassed = 0.0f;
-    private float gameTime = 10.0f; //in seconds
+    private float gameTime = 120.0f; //in seconds
 
     private bool initialized = false;
 
@@ -223,7 +224,7 @@ public class GameManager : NetworkBehaviour
             NetworkServer.Spawn(spawnedInstance);   
         }
 
-        if (mNextPowerupSpawn <= 0.0f)
+        if (mNextPowerupSpawn <= 0.0f && GetComponentsInChildren<Powerup>().Length < MAX_POWERUPS)
         {
             GameObject powerupSpawn = PowerupPrefab;
             Powerup powerupInstance = (Powerup)Instantiate(powerupSpawn).GetComponent<Powerup>();
