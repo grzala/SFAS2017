@@ -47,6 +47,8 @@ public class Player : NetworkBehaviour
 
     [SyncVar]
     public int score = 0;
+    [SyncVar]
+    public int materialIndex = 0;
 
     //BUFFS
     [SyncVar]
@@ -63,10 +65,11 @@ public class Player : NetworkBehaviour
 
     private HUD hud;
 
+    private bool initialized = false;
+
     void Awake()
     {
         mBody = GetComponent<Rigidbody>();
-
     }
 
     public override void OnStartLocalPlayer() {
@@ -125,16 +128,19 @@ public class Player : NetworkBehaviour
 
     void Update()
     {
-
         if (isLocalPlayer)
         {
+            if (!initialized)
+            {
+                CmdSetName(name);
+                CmdSetMaterial(materialIndex);
+                initialized = true;
+            }
+            
             InterpretInput();
 
 			UpdateHUD(); //HUD is updated on clientside
         }
-
-            
-
     }
 
 	void UpdateHUD()
@@ -295,9 +301,19 @@ public class Player : NetworkBehaviour
         //Destroy(spawnedInstance);
     }
 
+    [Command]
+    public void CmdSetMaterial(int index)
+    {
+        materialIndex = index;
+        GetComponent<Renderer>().material = mats[index];
+        RpcSetMaterial(index);
+    }
+
+
     [ClientRpc]
     public void RpcSetMaterial(int index)
     {
+        materialIndex = index;
         GetComponent<Renderer>().material = mats[index];
     }
 
@@ -307,5 +323,24 @@ public class Player : NetworkBehaviour
         GameObject.Find("ScreenManager").GetComponent<ScreenManager>().OnGameEnd();
         Text resultText = (Text)GameObject.Find("Results").GetComponent<Text>();
         resultText.text = resultString;
+    }
+
+    [ClientRpc]
+    public void RpcSetName(string name)
+    {
+        UpdateName(name);
+    }
+
+    [Command]
+    public void CmdSetName(string name)
+    {
+        UpdateName(name);
+        RpcSetName(name);
+    }
+
+    public void UpdateName(string name)
+    {
+        this.name = name;
+        transform.FindChild("PlayerName").GetComponent<TextMesh>().text = name;
     }
 }

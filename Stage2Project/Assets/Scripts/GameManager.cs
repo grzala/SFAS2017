@@ -130,7 +130,6 @@ public class GameManager : NetworkBehaviour
                 continue;
             }
 
-
             //UPDATE CUBES
             player.cubesLeft = GetPlayerCubes(player).Length;
 

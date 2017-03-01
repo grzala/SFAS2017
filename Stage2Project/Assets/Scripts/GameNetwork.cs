@@ -64,6 +64,8 @@ public class GameNetwork : NetworkManager {
 
         NetworkServer.SpawnWithClientAuthority(lp.gameObject, conn);
 
+        lp.RpcGetNameFromInput();
+
     }
 
     public int NextAvailableColor(int index)
@@ -152,15 +154,17 @@ public class GameNetwork : NetworkManager {
                 var player = (GameObject)GameObject.Instantiate(playerPrefab, new Vector3(0, 0, 0), Quaternion.identity, game.transform);
 
                 LobbyPlayer lp = GetLobbyPlayerByConnectionId(pair.Key.connectionId);
-                print(lp.colorIndex);
 
                 //player.GetComponent<Renderer>().material = lp.mats[lp.colorIndex];
 
                 NetworkServer.AddPlayerForConnection(pair.Key, player, pair.Value);
 
                 player.GetComponent<Renderer>().material = player.GetComponent<Player>().mats[lp.colorIndex];
+                player.GetComponent<Player>().materialIndex = lp.colorIndex;
                 player.GetComponent<Player>().RpcSetMaterial(lp.colorIndex);
-                player.GetComponent<Player>().name += " " + i;
+                string name = lp.name;
+                player.GetComponent<Player>().UpdateName(name);
+                player.GetComponent<Player>().RpcSetName(name);
 
                 game.GetComponent<GameManager>().players.Add(player.GetComponent<Player>());
                 i++;
@@ -213,6 +217,26 @@ public class GameNetwork : NetworkManager {
     {
         StopClient();
         UI.TransitionTo(UI.mainPanel);
+    }
+
+    public override void OnStopServer()
+    {
+        ClearPlayers();
+    }
+
+    public override void OnStopClient()
+    {
+        //ClearPlayers();
+    }
+
+    public void ClearPlayers()
+    {
+        foreach (LobbyPlayer lp in players)
+        {
+            Destroy(lp.gameObject);
+        }
+        players.Clear();
+        connections.Clear();
     }
 
     public void RemovePlayer(int connectionId)

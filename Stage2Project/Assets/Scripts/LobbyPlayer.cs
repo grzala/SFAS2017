@@ -24,11 +24,15 @@ public class LobbyPlayer : NetworkBehaviour {
     [SyncVar]
     public int colorIndex = -1;
 
-    [SerializeField]
-    private Text readyText;
+    [SyncVar]
+    public string name = "player";
 
     [SerializeField]
+    private Text readyText;
+    [SerializeField]
     private Button ColorButton;
+    [SerializeField]
+    private Text NameText;
 
 
 	// Use this for initialization
@@ -42,6 +46,7 @@ public class LobbyPlayer : NetworkBehaviour {
 
         readyText.text = ready ? "Ready" : "Not Ready";
         ColorButton.GetComponent<Image>().color = colors[colorIndex];
+        NameText.text = name;
 	}
 
 	// Update is called once per frame
@@ -82,6 +87,7 @@ public class LobbyPlayer : NetworkBehaviour {
 
         readyText.text = ready ? "Ready" : "Not Ready";
         ColorButton.GetComponent<Image>().color = colors[colorIndex];
+        NameText.text = name;
     }
 
     public void OnClickColor()
@@ -137,5 +143,23 @@ public class LobbyPlayer : NetworkBehaviour {
         {
             btn.interactable = toggle;
         }
+    }
+
+    [ClientRpc]
+    public void RpcGetNameFromInput()
+    {
+        string name = GameObject.Find("UsernameField").GetComponent<InputField>().text;
+        this.name = name;
+
+        //transform.FindChild("Name").GetComponent<Text>().text = name;
+        CmdSetNameOnServer(name);
+
+    }
+
+    [Command]
+    public void CmdSetNameOnServer(string name)
+    {
+        this.name = name;
+        transform.FindChild("Name").GetComponent<Text>().text = name;
     }
 }
