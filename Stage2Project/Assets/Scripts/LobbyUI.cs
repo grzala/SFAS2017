@@ -51,6 +51,13 @@ public class LobbyUI : MonoBehaviour {
     public void OnClickBack()
     {
         net.QuitServer();
+
+        if (currentPanel == mainPanel)
+        {
+            GameObject.Find("ScreenManager").GetComponent<ScreenManager>().GoToMain();
+            return;
+        }
+
         TransitionTo(mainPanel);
         UpdateInfo("offline", "none");
     }

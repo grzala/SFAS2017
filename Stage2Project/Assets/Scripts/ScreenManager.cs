@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class ScreenManager : MonoBehaviour
 {
@@ -8,7 +9,7 @@ public class ScreenManager : MonoBehaviour
     public static event GameEvent OnNewGame;
     public static event GameEvent OnExitGame;
 
-    public enum Screens { TitleScreen, GameScreen, ResultScreen, NumScreens }
+    public enum Screens { TitleScreen, GameScreen, ResultScreen, Lobby, PauseScreen, NumScreens }
 
     private Canvas [] mScreens;
     private Screens mCurrentScreen;
@@ -37,6 +38,7 @@ public class ScreenManager : MonoBehaviour
         }
 
         mCurrentScreen = Screens.TitleScreen;
+        mScreens[(int)mCurrentScreen].enabled = true;
     }
 
     public void StartGame()
@@ -46,7 +48,34 @@ public class ScreenManager : MonoBehaviour
             OnNewGame();
         }
 
+        TransitionTo(Screens.Lobby);
+    }
+
+    public void GoToLobby()
+    {
+        TransitionTo(Screens.Lobby);
+    }
+
+    public void GoToMain()
+    {
+        TransitionTo(Screens.TitleScreen);
+    }
+
+    public void GoToGame()
+    {
         TransitionTo(Screens.GameScreen);
+    }
+
+    public void OnClickPause()
+    {
+        TransitionTo(Screens.PauseScreen);
+    }
+
+    public void OnClickExit()
+    {
+        GameObject.Find("Lobby").GetComponent<GameNetwork>().QuitServer();
+        Destroy(gameObject);
+        SceneManager.LoadScene("UI");
     }
 
     public void EndGame()

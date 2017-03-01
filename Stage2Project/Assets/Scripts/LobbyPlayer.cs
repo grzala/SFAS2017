@@ -108,13 +108,15 @@ public class LobbyPlayer : NetworkBehaviour {
     [ClientRpc]
     public void RpcGameUI() {
         print("test");
-        GameObject.Find("ScreenManager").GetComponent<ScreenManager>().StartGame();
+        GameObject.Find("ScreenManager").GetComponent<ScreenManager>().GoToGame();
 
+        /*
         Canvas[] canvasses = GameObject.Find("Lobby").GetComponentsInChildren<Canvas>();
         foreach (Canvas c in canvasses)
         {
             c.enabled = false;
         }
+        */
     }
 
     [ClientRpc]
