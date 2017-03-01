@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Networking;
+using UnityEngine.UI;
 
 public class GameManager : NetworkBehaviour
 {
@@ -273,7 +274,35 @@ public class GameManager : NetworkBehaviour
             {
                 mState = State.Finished;
 
-                GameObject.Find("ScreenManager").GetComponent<ScreenManager>().OnGameEnd();
+                //GameObject.Find("ScreenManager").GetComponent<ScreenManager>().OnGameEnd();
+                //Text resultText = (Text)GameObject.Find("Results").GetComponent<Text>();
+
+                List<string> winners = new List<string>();
+                Dictionary<string, int> playerPoints = new Dictionary<string, int>();
+
+                foreach (Player p in players)
+                {
+                    winners.Add(p.name);
+                    playerPoints.Add(p.name, scores[p]);
+                }
+
+                winners.Sort((x, y) => playerPoints[y].CompareTo(playerPoints[x]));
+                string results = "";
+                for (int i = 0; i < winners.Count; i++)
+                {
+                    results += (i + 1) + ". " + winners[i] + " scored: " + playerPoints[winners[i]];
+                    if (i < winners.Count - 1)
+                    {
+                        results += "\n";
+                    }
+                }
+
+                foreach (Player p in players)
+                {
+                    p.RpcDisplayResults(results);
+                }
+
+                //resultText.text = results;
             
             }
             

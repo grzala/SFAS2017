@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Networking;
+using UnityEngine.UI;
 
 [RequireComponent(typeof(Rigidbody))]
 public class Player : NetworkBehaviour
@@ -18,6 +19,9 @@ public class Player : NetworkBehaviour
 
     [SerializeField]
     private GameObject ShieldPrefab;
+
+    [SyncVar]
+    public string name = "player";
 
     private NetworkInstanceId shieldId;
 
@@ -295,5 +299,13 @@ public class Player : NetworkBehaviour
     public void RpcSetMaterial(int index)
     {
         GetComponent<Renderer>().material = mats[index];
+    }
+
+    [ClientRpc]
+    public void RpcDisplayResults(string resultString)
+    {
+        GameObject.Find("ScreenManager").GetComponent<ScreenManager>().OnGameEnd();
+        Text resultText = (Text)GameObject.Find("Results").GetComponent<Text>();
+        resultText.text = resultString;
     }
 }

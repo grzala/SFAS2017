@@ -113,6 +113,7 @@ public class GameNetwork : NetworkManager {
     {
         if (SceneName == "Game")
         {
+            int i = 1;
             foreach (KeyValuePair<NetworkConnection, short> pair in connections)
             {
                 GameObject game = GameObject.Find("Game");
@@ -127,8 +128,10 @@ public class GameNetwork : NetworkManager {
 
                 player.GetComponent<Renderer>().material = player.GetComponent<Player>().mats[lp.colorIndex];
                 player.GetComponent<Player>().RpcSetMaterial(lp.colorIndex);
+                player.GetComponent<Player>().name += " " + i;
 
                 game.GetComponent<GameManager>().players.Add(player.GetComponent<Player>());
+                i++;
             }
 
             GetComponent<LobbyUI>().HideAllLobbyUI(players);
