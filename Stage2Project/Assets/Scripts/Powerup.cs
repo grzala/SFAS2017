@@ -1,8 +1,9 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Networking;
 
-public class Powerup : MonoBehaviour {
+public class Powerup : NetworkBehaviour {
 
     private float rotationSpeed = 30.0f;
 
@@ -20,9 +21,6 @@ public class Powerup : MonoBehaviour {
 
     [SerializeField]
     private Material arenaMaterial;
-
-    private Type type;
-    private Target target;
 
     //SELF, REST, ARENA
 
@@ -42,6 +40,11 @@ public class Powerup : MonoBehaviour {
         ARENA
     }
 
+    [SyncVar]
+    private Type type = Type.SPEED_UP;
+    [SyncVar]
+    private Target target = Target.SELF;
+
     private Dictionary<Type, string> textureNames = new Dictionary<Type, string>();
 
 	// Use this for initialization
@@ -49,12 +52,14 @@ public class Powerup : MonoBehaviour {
         current_bounce = bounce_bottom;		
         PopulateTexNames();
 
-        type = Type.HALVE_CUBES;
-        target = Target.SELF;
-
         SetColor();
         SetIcon();
 	}
+
+    void Start() 
+    {
+        
+    }
 
     private void PopulateTexNames()
     {
@@ -70,6 +75,13 @@ public class Powerup : MonoBehaviour {
         this.type = type;
         this.target = target;
 
+        SetColor();
+        SetIcon();
+    }
+
+    [ClientRpc]
+    public void RpcUpdateRenderTypes()
+    {
         SetColor();
         SetIcon();
     }
@@ -116,9 +128,6 @@ public class Powerup : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
 
-        //transform.GetChild(0).Rotate(new Vector3(0, rotationSpeed * Time.deltaTime, 0));
-
-
         float cur_speed;
         if (current_bounce >= bounce_top)
         {
@@ -146,6 +155,10 @@ public class Powerup : MonoBehaviour {
         //only players collect powerups
         if (collision.gameObject.tag == "Player") {
             //Resources.Load("COLLECT");
+
+            //run powerup picking only on server side
+            if (!isServer)
+                return;
 
             transform.parent.GetComponent<PowerupHandler>().ActivatePowerup(type, target, collision.GetComponent<Player>());
 

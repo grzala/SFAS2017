@@ -229,15 +229,10 @@ public class GameManager : NetworkBehaviour
 
             mNextPowerupSpawn = TimeBetweenPowerupSpawns;
 
-            if (powerupInstance != null)
-            {
-                NetworkServer.Spawn(powerupInstance.gameObject);
-                //mObjects.Add(powerupInstance);
-            }
-            else
-            {
-                Destroy(gameObject, 0.1f);
-            }
+            NetworkServer.Spawn(powerupInstance.gameObject);
+            powerupInstance.RpcUpdateRenderTypes();
+            //mObjects.Add(powerupInstance);
+
 
         }
     }
@@ -248,7 +243,7 @@ public class GameManager : NetworkBehaviour
         if (isLocalPlayer || !isServer)
             return;
 
-        print(isServer);
+        //print(isServer);
 
         DeleteInactivePlayers();
 
