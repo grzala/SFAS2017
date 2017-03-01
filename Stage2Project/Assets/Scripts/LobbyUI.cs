@@ -87,6 +87,24 @@ public class LobbyUI : MonoBehaviour {
                 player.RpcToggleStartBtn(true);
             }
         }
+        else
+        {
+            foreach (LobbyPlayer player in net.GetPlayers())
+            {
+                player.RpcToggleStartBtn(false);
+            }
+        }
+
+    }
+
+    public void ToggleStartBtn(bool toggle)
+    {
+        foreach (LobbyPlayer player in net.GetPlayers())
+        {
+            if (!player.isServer)
+                continue;
+            player.RpcToggleStartBtnInteract(toggle);
+        }
     }
 
 }

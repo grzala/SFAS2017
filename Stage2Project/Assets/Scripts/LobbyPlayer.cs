@@ -21,6 +21,11 @@ public class LobbyPlayer : NetworkBehaviour {
         print("localplayerspawning");
         GameObject list = GameObject.Find("List");
         transform.SetParent(list.transform, false);
+
+        GetComponent<Canvas>().enabled = false;
+        GetComponent<Canvas>().enabled = true;
+
+        readyText.text = ready ? "Ready" : "Not Ready";
 	}
 
 	// Update is called once per frame
@@ -44,15 +49,23 @@ public class LobbyPlayer : NetworkBehaviour {
         ready = toggle;
 
         if (ready)
-            readyText.text = "Ready";
+            RpcUpdateReadyText("Ready");
         else
-            readyText.text = "NotReady";
+            RpcUpdateReadyText("NotReady");
+    }
+
+    [ClientRpc]
+    public void RpcUpdateReadyText(string text)
+    {
+        readyText.text = text;
     }
 
     public void InitializeLocal()
     {
-        Button ready = transform.parent.parent.Find("Ready").GetComponent<Button>();
-        ready.onClick.AddListener(() => OnClickReady());
+        Button readyBtn = transform.parent.parent.Find("Ready").GetComponent<Button>();
+        readyBtn.onClick.AddListener(() => OnClickReady());
+
+        readyText.text = ready ? "Ready" : "Not Ready";
     }
 
 
@@ -73,9 +86,18 @@ public class LobbyPlayer : NetworkBehaviour {
     {
         Button btn = GameObject.Find("Lobby").GetComponent<LobbyUI>().startBtn;
 
+        btn.gameObject.SetActive(toggle);
+       
+    }
+
+    [ClientRpc]
+    public void RpcToggleStartBtnInteract(bool toggle)
+    {
+        Button btn = GameObject.Find("Lobby").GetComponent<LobbyUI>().startBtn;
+
         if (isServer)
         {
-            btn.gameObject.SetActive(toggle);
+            btn.interactable = toggle;
         }
     }
 }

@@ -66,8 +66,33 @@ public class GameNetwork : NetworkManager {
 	
 	// Update is called once per frame
 	void Update () {
+
+        if (!NetworkServer.active)
+            return;
         
+        UI.ToggleStartBtn(PlayersReady());
+
+
 	}
+
+    private bool PlayersReady()
+    {
+        if (players.Count < 1)
+            return false;
+
+        bool ready = true;
+
+        foreach (LobbyPlayer p in players) 
+        {
+            if (!p.ready)
+            {
+                ready = false;
+                break;
+            }
+        }
+
+        return ready;
+    }
 
     public void StartGame() {
         if (!NetworkServer.active)
@@ -128,6 +153,12 @@ public class GameNetwork : NetworkManager {
     public override void OnServerDisconnect(NetworkConnection conn)
     {
         RemovePlayer(conn.connectionId);
+    }
+
+    public override void OnClientDisconnect(NetworkConnection conn)
+    {
+        StopClient();
+        UI.TransitionTo(UI.mainPanel);
     }
 
     public void RemovePlayer(int connectionId)
