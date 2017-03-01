@@ -30,7 +30,7 @@ public class LobbyUI : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-        
+
 	}
 
     public void OnClickHost()
@@ -82,8 +82,10 @@ public class LobbyUI : MonoBehaviour {
     public void TransitionTo(Canvas next)
     {
         currentPanel.enabled = false;
+        currentPanel.GetComponent<GraphicRaycaster>().enabled = false;
         currentPanel = next;
         currentPanel.enabled = true;
+        currentPanel.GetComponent<GraphicRaycaster>().enabled = true;
 
         if (next == playerList)
         {
