@@ -6,14 +6,27 @@ using UnityEngine.UI;
 
 public class LobbyPlayer : NetworkBehaviour {
 
+    private static Color[] colors =
+    {
+        Color.red,
+        Color.yellow,
+        Color.cyan,
+    };
+
     public int connectionId;
     private bool initialized = false;
 
     [SyncVar]
     public bool ready = false;
 
+    [SyncVar]
+    public int colorIndex = 0;
+
     [SerializeField]
     private Text readyText;
+
+    [SerializeField]
+    private Button ColorButton;
 
 
 	// Use this for initialization
@@ -26,6 +39,7 @@ public class LobbyPlayer : NetworkBehaviour {
         GetComponent<Canvas>().enabled = true;
 
         readyText.text = ready ? "Ready" : "Not Ready";
+        ColorButton.GetComponent<Image>().color = colors[colorIndex];
 	}
 
 	// Update is called once per frame
@@ -48,10 +62,7 @@ public class LobbyPlayer : NetworkBehaviour {
     {
         ready = toggle;
 
-        if (ready)
-            RpcUpdateReadyText("Ready");
-        else
-            RpcUpdateReadyText("NotReady");
+        RpcUpdateReadyText(ready ? "Ready" : "Not Ready");
     }
 
     [ClientRpc]
@@ -65,7 +76,32 @@ public class LobbyPlayer : NetworkBehaviour {
         Button readyBtn = transform.parent.parent.Find("Ready").GetComponent<Button>();
         readyBtn.onClick.AddListener(() => OnClickReady());
 
+        ColorButton.onClick.AddListener(() => OnClickColor());
+
         readyText.text = ready ? "Ready" : "Not Ready";
+        ColorButton.GetComponent<Image>().color = colors[colorIndex];
+    }
+
+    public void OnClickColor()
+    {
+        CmdChangeColor();
+    }
+
+    [Command]
+    public void CmdChangeColor()
+    {
+        colorIndex += 1;
+        if (colorIndex >= colors.Length)
+            colorIndex = 0;
+
+        RpcRecolor(colorIndex);
+    }
+
+    [ClientRpc]
+    public void RpcRecolor(int index)
+    {
+        colorIndex = index;
+        ColorButton.GetComponent<Image>().color = colors[colorIndex];
     }
 
 
