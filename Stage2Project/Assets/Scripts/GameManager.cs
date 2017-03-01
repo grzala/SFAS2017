@@ -50,6 +50,8 @@ public class GameManager : NetworkBehaviour
     private float timePassed = 0.0f;
     private float gameTime = 10.0f; //in seconds
 
+    private bool initialized = false;
+
     void Awake()
     {
         //mPlayer = Instantiate(PlayerPrefab);
@@ -253,6 +255,11 @@ public class GameManager : NetworkBehaviour
 
         if (mState == State.Playing)
         {
+            if (!initialized)
+            {
+
+                initialized = true;
+            }
 
             UpdateScores();
 
@@ -309,6 +316,25 @@ public class GameManager : NetworkBehaviour
         else if (mState == State.Finished)
         {
 
+        }
+    }
+
+    public void SetPlayerPositions()
+    {
+        Transform[] positions = new Transform[4];
+        GameObject SpawnPositions = GameObject.Find("SpawnPositions");
+        for (int i = 0; i < SpawnPositions.transform.childCount; i++)
+        {
+            positions[i] = SpawnPositions.transform.GetChild(i);
+        }
+
+        print(players.Count);
+
+        int spawned = 0;
+        foreach (Player player in players)
+        {
+            player.RpcSetPos(positions[spawned].position);
+            spawned++;
         }
     }
 

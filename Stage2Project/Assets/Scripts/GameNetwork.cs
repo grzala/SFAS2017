@@ -59,6 +59,12 @@ public class GameNetwork : NetworkManager {
 
         lp.colorIndex = NextAvailableColor(0);
 
+        if (connections.ContainsKey(conn))
+        {
+            RemovePlayer(conn.connectionId);
+            connections.Remove(conn);
+        }
+
         players.Add(lp);
         connections.Add(conn, playerControllerId);
 
@@ -148,9 +154,9 @@ public class GameNetwork : NetworkManager {
         if (SceneName == "Game")
         {
             int i = 1;
+            GameManager game = GameObject.Find("Game").GetComponent<GameManager>();
             foreach (KeyValuePair<NetworkConnection, short> pair in connections)
             {
-                GameObject game = GameObject.Find("Game");
                 var player = (GameObject)GameObject.Instantiate(playerPrefab, new Vector3(0, 0, 0), Quaternion.identity, game.transform);
 
                 LobbyPlayer lp = GetLobbyPlayerByConnectionId(pair.Key.connectionId);
@@ -166,9 +172,10 @@ public class GameNetwork : NetworkManager {
                 player.GetComponent<Player>().UpdateName(name);
                 player.GetComponent<Player>().RpcSetName(name);
 
-                game.GetComponent<GameManager>().players.Add(player.GetComponent<Player>());
+                game.players.Add(player.GetComponent<Player>());
                 i++;
             }
+            game.SetPlayerPositions();
 
             GetComponent<LobbyUI>().HideAllLobbyUI(players);
         }

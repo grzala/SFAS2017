@@ -343,4 +343,10 @@ public class Player : NetworkBehaviour
         this.name = name;
         transform.FindChild("PlayerName").GetComponent<TextMesh>().text = name;
     }
+
+    [ClientRpc]
+    public void RpcSetPos(Vector3 pos)
+    {
+        transform.position = pos;
+    }
 }
