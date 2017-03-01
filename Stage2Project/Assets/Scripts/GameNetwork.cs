@@ -57,11 +57,43 @@ public class GameNetwork : NetworkManager {
             adminId = lp.connectionId;
         }
 
+        lp.colorIndex = NextAvailableColor(0);
+
         players.Add(lp);
         connections.Add(conn, playerControllerId);
 
         NetworkServer.SpawnWithClientAuthority(lp.gameObject, conn);
 
+    }
+
+    public int NextAvailableColor(int index)
+    {
+        while (!IsColorAvailable(index))
+        {
+            index++;
+            if (index >= LobbyPlayer.colors.Length)
+            {
+                index = 0;
+            }
+        }
+
+        return index;
+    }
+
+    private bool IsColorAvailable(int index)
+    {
+        bool avail = true;
+
+        foreach (LobbyPlayer lp in players)
+        {
+            if (lp.colorIndex == index)
+            {
+                avail = false;
+                break;
+            }
+        }
+
+        return avail;
     }
 	
 	// Update is called once per frame

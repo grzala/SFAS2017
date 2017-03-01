@@ -6,11 +6,13 @@ using UnityEngine.UI;
 
 public class LobbyPlayer : NetworkBehaviour {
 
-    private static Color[] colors =
+    public static Color[] colors =
     {
         Color.red,
         Color.yellow,
         Color.cyan,
+        (Color)new Vector4(0.3f, 0, 0.5f, 1),
+        Color.blue,
     };
 
     public int connectionId;
@@ -20,7 +22,7 @@ public class LobbyPlayer : NetworkBehaviour {
     public bool ready = false;
 
     [SyncVar]
-    public int colorIndex = 0;
+    public int colorIndex = -1;
 
     [SerializeField]
     private Text readyText;
@@ -90,9 +92,7 @@ public class LobbyPlayer : NetworkBehaviour {
     [Command]
     public void CmdChangeColor()
     {
-        colorIndex += 1;
-        if (colorIndex >= colors.Length)
-            colorIndex = 0;
+        colorIndex = GameObject.Find("Lobby").GetComponent<GameNetwork>().NextAvailableColor(colorIndex);
 
         RpcRecolor(colorIndex);
     }
