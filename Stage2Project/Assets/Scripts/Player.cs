@@ -6,6 +6,10 @@ using UnityEngine.Networking;
 [RequireComponent(typeof(Rigidbody))]
 public class Player : NetworkBehaviour
 {
+
+    [SerializeField]
+    public Material[] mats;
+
     [SerializeField]
 	private float Speed;
 
@@ -287,5 +291,9 @@ public class Player : NetworkBehaviour
         //Destroy(spawnedInstance);
     }
 
-
+    [ClientRpc]
+    public void RpcSetMaterial(int index)
+    {
+        GetComponent<Renderer>().material = mats[index];
+    }
 }

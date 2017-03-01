@@ -118,13 +118,32 @@ public class GameNetwork : NetworkManager {
                 GameObject game = GameObject.Find("Game");
                 var player = (GameObject)GameObject.Instantiate(playerPrefab, new Vector3(0, 0, 0), Quaternion.identity, game.transform);
 
+                LobbyPlayer lp = GetLobbyPlayerByConnectionId(pair.Key.connectionId);
+                print(lp.colorIndex);
+
+                //player.GetComponent<Renderer>().material = lp.mats[lp.colorIndex];
+
                 NetworkServer.AddPlayerForConnection(pair.Key, player, pair.Value);
+
+                player.GetComponent<Renderer>().material = player.GetComponent<Player>().mats[lp.colorIndex];
+                player.GetComponent<Player>().RpcSetMaterial(lp.colorIndex);
 
                 game.GetComponent<GameManager>().players.Add(player.GetComponent<Player>());
             }
 
             GetComponent<LobbyUI>().HideAllLobbyUI(players);
         }
+    }
+
+    public LobbyPlayer GetLobbyPlayerByConnectionId(int conId)
+    {
+        foreach (LobbyPlayer p in players)
+        {
+            if (p.connectionId == conId)
+                return p;
+        }
+
+        return null;
     }
 
     public override void OnStartHost()
