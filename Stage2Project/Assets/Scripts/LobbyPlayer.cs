@@ -47,6 +47,8 @@ public class LobbyPlayer : NetworkBehaviour {
         readyText.text = ready ? "Ready" : "Not Ready";
         ColorButton.GetComponent<Image>().color = colors[colorIndex];
         NameText.text = name;
+        GetNameFromInput();
+        CmdSetNameOnServer(name);
 	}
 
 	// Update is called once per frame
@@ -88,6 +90,8 @@ public class LobbyPlayer : NetworkBehaviour {
         readyText.text = ready ? "Ready" : "Not Ready";
         ColorButton.GetComponent<Image>().color = colors[colorIndex];
         NameText.text = name;
+        GetNameFromInput();
+        CmdSetNameOnServer(name);
     }
 
     public void OnClickColor()
@@ -145,15 +149,18 @@ public class LobbyPlayer : NetworkBehaviour {
         }
     }
 
-    [ClientRpc]
-    public void RpcGetNameFromInput()
+    public void GetNameFromInput()
     {
         string name = GameObject.Find("UsernameField").GetComponent<InputField>().text;
         this.name = name;
+    }
 
+    [ClientRpc]
+    public void RpcGetNameFromInput()
+    {
+        GetNameFromInput();
         //transform.FindChild("Name").GetComponent<Text>().text = name;
         CmdSetNameOnServer(name);
-
     }
 
     [Command]

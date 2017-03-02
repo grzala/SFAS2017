@@ -18,7 +18,6 @@ public class GameNetwork : NetworkManager {
     private LobbyUI UI;
 
     private bool inGame = false;
-    private bool newPlayerAdded = false;
 
 	// Use this for initialization
 	void Start () {
@@ -49,8 +48,6 @@ public class GameNetwork : NetworkManager {
         NetworkServer.SpawnWithClientAuthority(lp.gameObject, conn);
 
         lp.RpcGetNameFromInput();
-        print(lp.name);
-        print(IsNameAvailable(lp.name));
 
         lp.connectionId = conn.connectionId;
 
@@ -61,17 +58,9 @@ public class GameNetwork : NetworkManager {
 
         lp.colorIndex = NextAvailableColor(0);
 
-        if (connections.ContainsKey(conn))
-        {
-            RemovePlayer(conn.connectionId);
-            connections.Remove(conn);
-        }
-
         players.Add(lp);
         connections.Add(conn, playerControllerId);
-
-        newPlayerAdded = true;
-
+       
     }
 
     public int NextAvailableColor(int index)
@@ -133,35 +122,7 @@ public class GameNetwork : NetworkManager {
         
         UI.ToggleStartBtn(PlayersReady());
 
-        if (newPlayerAdded)
-        {
-            for (int i = players.Count - 1; i >= 0; i--)
-            {
-                if (players.Count > MAX_PLAYERS || IsNameDuplicated(players[i]))
-                {
-                    print("REMOVE THIS GUY");
-                    //RemovePlayer(players[i].connectionId);
-                }
-            }
-
-            newPlayerAdded = false;
-        }
-
 	}
-
-    public bool IsNameDuplicated(LobbyPlayer p)
-    {
-        bool result = false;
-        for (int i = 0; i < players.Count; i++)
-        {
-            if (p != players[i] && p.name == players[i].name)
-            {
-                result = true;
-                break;
-            }
-        }
-        return result;
-    }
 
     private bool PlayersReady()
     {
