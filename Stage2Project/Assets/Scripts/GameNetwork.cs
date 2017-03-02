@@ -13,7 +13,12 @@ public class GameNetwork : NetworkManager {
     private List<LobbyPlayer> players = new List<LobbyPlayer>();
     private Dictionary<NetworkConnection, short> connections = new Dictionary<NetworkConnection, short>();
 
+    private const int MAX_PLAYERS = 4;
+
     private LobbyUI UI;
+
+    private bool inGame = false;
+    private bool newPlayerAdded = false;
 
 	// Use this for initialization
 	void Start () {
@@ -38,17 +43,14 @@ public class GameNetwork : NetworkManager {
 
     public override void OnServerAddPlayer(NetworkConnection conn, short playerControllerId)
     {
-        /*
-            //set game manager as parent while instantiating
-            GameObject game = GameObject.Find("Game");
-            var player = (GameObject)GameObject.Instantiate(playerPrefab, new Vector3(0, 0, 0), Quaternion.identity, game.transform);
-            NetworkServer.AddPlayerForConnection(conn, player, playerControllerId);
-
-            game.GetComponent<GameManager>().players.Add(player.GetComponent<Player>());
-        */
-        print("adding a player");
         LobbyPlayer lp = (LobbyPlayer)Instantiate(LobbyPlayerPrefab).GetComponent<LobbyPlayer>();
         lp.transform.SetParent(UI.list.transform, false);
+
+        NetworkServer.SpawnWithClientAuthority(lp.gameObject, conn);
+
+        lp.RpcGetNameFromInput();
+        print(lp.name);
+        print(IsNameAvailable(lp.name));
 
         lp.connectionId = conn.connectionId;
 
@@ -68,9 +70,7 @@ public class GameNetwork : NetworkManager {
         players.Add(lp);
         connections.Add(conn, playerControllerId);
 
-        NetworkServer.SpawnWithClientAuthority(lp.gameObject, conn);
-
-        lp.RpcGetNameFromInput();
+        newPlayerAdded = true;
 
     }
 
@@ -88,6 +88,11 @@ public class GameNetwork : NetworkManager {
         return index;
     }
 
+	private bool CanAddPlayer(LobbyPlayer lp)
+	{
+        return !inGame && players.Count < MAX_PLAYERS && IsNameAvailable(lp.name);
+	}
+
     private bool IsColorAvailable(int index)
     {
         bool avail = true;
@@ -103,6 +108,22 @@ public class GameNetwork : NetworkManager {
 
         return avail;
     }
+
+	private bool IsNameAvailable(string name)
+	{
+		bool avail = true;
+
+		foreach (LobbyPlayer lp in players)
+		{
+			if (lp.name == name)
+			{
+				avail = false;
+				break;
+			}
+		}
+
+		return avail;
+	}
 	
 	// Update is called once per frame
 	void Update () {
@@ -112,8 +133,35 @@ public class GameNetwork : NetworkManager {
         
         UI.ToggleStartBtn(PlayersReady());
 
+        if (newPlayerAdded)
+        {
+            for (int i = players.Count - 1; i >= 0; i--)
+            {
+                if (players.Count > MAX_PLAYERS || IsNameDuplicated(players[i]))
+                {
+                    print("REMOVE THIS GUY");
+                    //RemovePlayer(players[i].connectionId);
+                }
+            }
+
+            newPlayerAdded = false;
+        }
 
 	}
+
+    public bool IsNameDuplicated(LobbyPlayer p)
+    {
+        bool result = false;
+        for (int i = 0; i < players.Count; i++)
+        {
+            if (p != players[i] && p.name == players[i].name)
+            {
+                result = true;
+                break;
+            }
+        }
+        return result;
+    }
 
     private bool PlayersReady()
     {
@@ -138,15 +186,18 @@ public class GameNetwork : NetworkManager {
         if (!NetworkServer.active)
             return;
 
+        inGame = true;
         ServerChangeScene("Game");
+
     }
 
     public void QuitServer() 
     {
         adminId = -1;
-        players = new List<LobbyPlayer>();
-        connections = new Dictionary<NetworkConnection, short>();
+        players.Clear();
+        connections.Clear();
         StopHost();
+        StopClient();
     }
 
     public override void OnServerSceneChanged(string SceneName)
@@ -248,20 +299,27 @@ public class GameNetwork : NetworkManager {
 
     public void RemovePlayer(int connectionId)
     {
-        bool destroy = false;
-        int iToDestroy = 0;
 
         for (int i = 0; i < players.Count; i++)
         {
             if (players[i].connectionId == connectionId)
             {
-                iToDestroy = i;
-                destroy = true;
+                LobbyPlayer p = players[i];
+                players.RemoveAt(i);
+                NetworkServer.Destroy(p.gameObject);
+                break;
             }
         }
 
-        LobbyPlayer p = players[iToDestroy];
-        players.RemoveAt(iToDestroy);
-        Destroy(p.gameObject);
+        foreach (NetworkConnection key in connections.Keys)
+        {
+            if (key.connectionId == connectionId)
+            {
+                key.Disconnect();
+                connections.Remove(key);
+                break;
+            }
+        }
+
     }
 }
