@@ -4,8 +4,11 @@ using UnityEngine;
 using UnityEngine.Networking;
 using UnityEngine.UI;
 
+/* LobbyPlayer represents client in lobby */
+
 public class LobbyPlayer : NetworkBehaviour {
 
+    //possible colors to choose from
     public static Color[] colors =
     {
         Color.red,
@@ -37,7 +40,6 @@ public class LobbyPlayer : NetworkBehaviour {
 
 	// Use this for initialization
 	void Start () {
-        print("localplayerspawning");
         GameObject list = GameObject.Find("List");
         transform.SetParent(list.transform, false);
 
@@ -80,6 +82,7 @@ public class LobbyPlayer : NetworkBehaviour {
         readyText.text = text;
     }
 
+    //call this so that clients who join can see changes already made by other players
     public void InitializeLocal()
     {
         Button readyBtn = transform.parent.parent.Find("Ready").GetComponent<Button>();
@@ -117,16 +120,7 @@ public class LobbyPlayer : NetworkBehaviour {
 
     [ClientRpc]
     public void RpcGameUI() {
-        print("test");
         GameObject.Find("ScreenManager").GetComponent<ScreenManager>().GoToGame();
-
-        /*
-        Canvas[] canvasses = GameObject.Find("Lobby").GetComponentsInChildren<Canvas>();
-        foreach (Canvas c in canvasses)
-        {
-            c.enabled = false;
-        }
-        */
     }
 
     [ClientRpc]
@@ -159,7 +153,6 @@ public class LobbyPlayer : NetworkBehaviour {
     public void RpcGetNameFromInput()
     {
         GetNameFromInput();
-        //transform.FindChild("Name").GetComponent<Text>().text = name;
         CmdSetNameOnServer(name);
     }
 

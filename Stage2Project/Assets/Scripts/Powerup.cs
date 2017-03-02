@@ -3,27 +3,34 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Networking;
 
+// Powerup prefab
 public class Powerup : NetworkBehaviour {
 
+    //this is deprecated
     private float rotationSpeed = 30.0f;
 
+    //up/down motion
     private float bounce_bottom = 0.5f;
     private float bounce_top = 2.5f;
     private float current_bounce;
     private bool rising = true;
     private float bounce_speed = 0.8f;
 
+    //depending on target, powerups have different colors, therefore different materials
     [SerializeField]
     private Material selfMaterial;
-
     [SerializeField]
     private Material restMaterial;
-
     [SerializeField]
     private Material arenaMaterial;
 
     //SELF, REST, ARENA
+    //In the beggining, I wanted to create powerups
+    //That not only affect the player, but also the arena / game itself
+    //I decided not to do this, However I left the code in case I wanted
+    //to implement that feature later
 
+    //Types of powerups
     public enum Type
     {
         SPEED_UP,
@@ -40,6 +47,7 @@ public class Powerup : NetworkBehaviour {
         ARENA
     }
 
+    //set default type
     [SyncVar]
     private Type type = Type.SPEED_UP;
     [SyncVar]
@@ -56,11 +64,7 @@ public class Powerup : NetworkBehaviour {
         SetIcon();
 	}
 
-    void Start() 
-    {
-        
-    }
-
+    //every type has different icon. TextureNames allows to check out the name of required sprite
     private void PopulateTexNames()
     {
         textureNames.Add(Type.SPEED_UP, "speed_up");
@@ -70,6 +74,7 @@ public class Powerup : NetworkBehaviour {
         textureNames.Add(Type.HALVE_CUBES, "halve");
     }
 
+    //set type and proper material and sprite
     public void SetType(Type type, Target target)
     {
         this.type = type;
@@ -79,6 +84,7 @@ public class Powerup : NetworkBehaviour {
         SetIcon();
     }
 
+    //set material and icon on server
     [ClientRpc]
     public void RpcUpdateRenderTypes()
     {
@@ -86,6 +92,7 @@ public class Powerup : NetworkBehaviour {
         SetIcon();
     }
 
+    //create a random powerup from possible types and targets
     public void SetRandomType()
     {
         System.Array types = Type.GetValues(typeof(Type));
@@ -95,9 +102,9 @@ public class Powerup : NetworkBehaviour {
         Target rntargert = (Target)targets.GetValue(Random.Range(0, 2));
 
         SetType(rntype, rntargert);
-
     }
 
+    //set material adequate to target
     private void SetColor()
     {
         Material [] mats = new Material[1];
@@ -114,10 +121,10 @@ public class Powerup : NetworkBehaviour {
                 break;
         }
 
-
         GetComponent<Renderer>().materials = mats;
     }
 
+    //Set sprite icon adequate to target
     private void SetIcon()
     {
         Sprite s = Resources.Load(textureNames[type], typeof(Sprite)) as Sprite;
@@ -151,6 +158,7 @@ public class Powerup : NetworkBehaviour {
         current_bounce = transform.position.y;
 	}
 
+    //collect powerup
     private void OnTriggerEnter(Collider collision) {
         //only players collect powerups
         if (collision.gameObject.tag == "Player") {

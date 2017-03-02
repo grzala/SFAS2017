@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Networking;
 
+/* I did not edit the code in case I want to implement new features that need it
+ * However, I only use typeTwo prefab and only yhe attract magnet type */
+
 [RequireComponent(typeof(Rigidbody))]
 public class MagnetizedByPlayer : NetworkBehaviour
 {

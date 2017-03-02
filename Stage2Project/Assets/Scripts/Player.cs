@@ -9,17 +9,17 @@ public class Player : NetworkBehaviour
 {
 
     [SerializeField]
-    public Material[] mats;
+    public Material[] mats; //One can choose color for player. This requires to load different materials
 
     [SerializeField]
 	private float Speed;
 
     [SerializeField]
     private GameObject BulletPrefab;
-
     [SerializeField]
     private GameObject ShieldPrefab;
 
+    //default screenName
     [SyncVar]
     public string name = "player";
 
@@ -60,11 +60,8 @@ public class Player : NetworkBehaviour
 	public bool inverted = false;
 
     private Shield shield;
-
     private Rigidbody mBody;
-
     private HUD hud;
-
     private bool initialized = false;
 
     void Awake()
@@ -86,6 +83,7 @@ public class Player : NetworkBehaviour
     [Command]
     private void CmdCreateShield()
     {
+        //Player directly controls the shield, but it needs to be spawned on server.
         GameObject toInstantiate = ShieldPrefab;
         GameObject shieldObject = Instantiate(toInstantiate);
         //shieldObject.name = "Shield";
@@ -99,6 +97,7 @@ public class Player : NetworkBehaviour
     [Command]
     private void CmdUpdateShield(float angle)
     {
+        //Position and rotate shield according to player position and mouse click position
         shield = NetworkServer.FindLocalObject(shieldId).GetComponent<Shield>();
 
         shield.gameObject.SetActive(shielding);
@@ -184,7 +183,7 @@ public class Player : NetworkBehaviour
 
         float speed_to_add = accel;
 
-
+        //powerups
         if (speedBuff)
             speed_to_add *= SPEED_BUFF_MODIF;
         if (slowBuff)
@@ -195,6 +194,8 @@ public class Player : NetworkBehaviour
         //maintainMaxSpeed();
         //Accelerate(direction * speed_to_add * Time.deltaTime);
 
+
+        //GET MOUSE CLICK POSITION
         Ray ray = GameObject.Find("LevelCamera").GetComponent<Camera>().ScreenPointToRay(Input.mousePosition); //Input.mousePosition);
         Debug.DrawRay(ray.origin, ray.direction * 1000, Color.yellow);
 
@@ -273,6 +274,7 @@ public class Player : NetworkBehaviour
         }
     }
 
+    //Spawn a bullet
     [Command]
     public void CmdShoot(float angle) {
         if (shotsLeft <= 0)
@@ -301,6 +303,8 @@ public class Player : NetworkBehaviour
         //Destroy(spawnedInstance);
     }
 
+
+    //Server and client commands for updating names and materials so that all clients can see this
     [Command]
     public void CmdSetMaterial(int index)
     {
@@ -308,7 +312,6 @@ public class Player : NetworkBehaviour
         GetComponent<Renderer>().material = mats[index];
         RpcSetMaterial(index);
     }
-
 
     [ClientRpc]
     public void RpcSetMaterial(int index)

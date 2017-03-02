@@ -4,28 +4,25 @@ using UnityEngine;
 using UnityEngine.Networking;
 using UnityEngine.UI;
 
+/* This script contains all game logic and runs only on server
+ * The server decides everything. One might even say, that it is authoritative. */
+
 public class GameManager : NetworkBehaviour
 {
     public enum State { Paused, Playing, Finished }
 
     [SerializeField]
     private GameObject [] SpawnPrefabs;
-
     [SerializeField]
     private GameObject BulletPrefab;
-
     [SerializeField]
     private Player PlayerPrefab;
-
     [SerializeField]
     private GameObject PowerupPrefab;
-
     [SerializeField]
     private Player player;
-
     [SerializeField]
     private Arena Arena;
-
     [SerializeField]
     private float TimeBetweenSpawns;
 
@@ -55,34 +52,20 @@ public class GameManager : NetworkBehaviour
 
     void Awake()
     {
-        //mPlayer = Instantiate(PlayerPrefab);
-		//mPlayer = (Player)GameObject.Find("Player").GetComponent<Player>();
-        //mPlayer.transform.parent = transform;
-
-		//LevelCamera cam = FindObjectOfType<LevelCamera>();
-		//cam.enabled = true; //set as main
-		//cam.Follow(mPlayer.gameObject);
-
         ScreenManager.OnNewGame += ScreenManager_OnNewGame;
 		ScreenManager.OnExitGame += ScreenManager_OnExitGame;
 
         mNextSpawn = TimeBetweenSpawns;
         mNextPowerupSpawn = TimeBetweenPowerupSpawns;
-
-
     }
 
     void Start()
     {
-        //Arena.Calculate();
-		//mPlayer.enabled = false;
-		//mState = State.Paused;
         mState = State.Playing;
         nextScoreCount = SCORE_COUNT_FREQUENCY;
-
-
     }
 
+    //To prevent nullPointers, delete null players from array
     private void DeleteInactivePlayers()
     {
         //delete disconnected players
@@ -126,6 +109,9 @@ public class GameManager : NetworkBehaviour
 
     private void UpdatePlayers()
     { 
+        //Update players HUD
+        //Update his shield position
+
 		string timeString;
 		float timeLeft = gameTime - timePassed;
 		string minutes = ((int)(timeLeft / 60)).ToString();
@@ -146,7 +132,7 @@ public class GameManager : NetworkBehaviour
             //UPDATE CUBES
             player.cubesLeft = GetPlayerCubes(player).Length;
 
-            //RELOAD
+            //RELOAD - take away cube for too much shooting
             if (player.shotsLeft <= 0 && player.cubesLeft > 0)
             {
                 DeleteRandomPlayerCube(player);
@@ -154,18 +140,15 @@ public class GameManager : NetworkBehaviour
             }
 
             //UPDATE SHIELD
-            //shield.transform.position = new Vector3(0, 100, 0);
+            //inactive shield is not really deactivated - it is moved far below arena's surface
             bool shielding = player.shielding;
-            Shield shield = null; // = player.GetComponentInChildren<Shield>();
-            //shield.gameObject.SetActive((bool)shielding);
+            Shield shield = null; 
 
             foreach (Transform child in player.transform)
             {
-
                 shield = child.GetComponent<Shield>();
                 if (shield != null)
                     break;
-
             }
 
             if (shield != null)
@@ -203,6 +186,7 @@ public class GameManager : NetworkBehaviour
         }
     }
 
+    //apply magnetized movement
     private void UpdateCubes()
     {
         MagnetizedByPlayer[] cubes = GetAllCubes();
@@ -213,6 +197,7 @@ public class GameManager : NetworkBehaviour
 
     }
 
+    //random spawn of cubes and powerups
     private void SpawnCubesAndPowerups()
     {
         mNextSpawn -= Time.deltaTime;
@@ -260,15 +245,12 @@ public class GameManager : NetworkBehaviour
         if (isLocalPlayer || !isServer)
             return;
 
-        //print(isServer);
-
         DeleteInactivePlayers();
 
         if (mState == State.Playing)
         {
             if (!initialized)
             {
-
                 initialized = true;
             }
 
@@ -278,11 +260,6 @@ public class GameManager : NetworkBehaviour
 
             UpdateCubes();
 
-           
-            //update HUD
-            //HUD hud = GameObject.Find("/HUD").GetComponent<HUD>();
-            //hud.setCubes(childrenCubes.Count);
-
             SpawnCubesAndPowerups();
 
             timePassed += Time.deltaTime;
@@ -290,9 +267,6 @@ public class GameManager : NetworkBehaviour
             if (timePassed >= gameTime)
             {
                 mState = State.Finished;
-
-                //GameObject.Find("ScreenManager").GetComponent<ScreenManager>().OnGameEnd();
-                //Text resultText = (Text)GameObject.Find("Results").GetComponent<Text>();
 
                 List<string> winners = new List<string>();
                 Dictionary<string, int> playerPoints = new Dictionary<string, int>();
@@ -303,7 +277,7 @@ public class GameManager : NetworkBehaviour
                     playerPoints.Add(p.name, scores[p]);
                 }
 
-                winners.Sort((x, y) => playerPoints[y].CompareTo(playerPoints[x]));
+                winners.Sort((x, y) => playerPoints[y].CompareTo(playerPoints[x])); //Sort by most points decreasing
                 string results = "";
                 for (int i = 0; i < winners.Count; i++)
                 {
@@ -317,16 +291,12 @@ public class GameManager : NetworkBehaviour
                 foreach (Player p in players)
                 {
                     p.RpcDisplayResults(results);
-                }
-
-                //resultText.text = results;
-            
-            }
-            
+                }            
+            }            
         }
         else if (mState == State.Finished)
         {
-
+            //Do nothing, really
         }
     }
 
@@ -338,8 +308,6 @@ public class GameManager : NetworkBehaviour
         {
             positions[i] = SpawnPositions.transform.GetChild(i);
         }
-
-        print(players.Count);
 
         int spawned = 0;
         foreach (Player player in players)
@@ -360,16 +328,13 @@ public class GameManager : NetworkBehaviour
             mObjects.Clear();
         }
 
-        //mPlayer.transform.position = new Vector3(0.0f, 0.5f, 0.0f);
         mNextSpawn = TimeBetweenSpawns;
-        //mPlayer.enabled = true;
         mState = State.Playing;
     }
 
     private void EndGame()
     {
-        //mPlayer.enabled = false;
-        //mState = State.Paused;
+        
     }
 
     private void ScreenManager_OnNewGame()
@@ -382,10 +347,11 @@ public class GameManager : NetworkBehaviour
         EndGame();
     }
 
+    //powerup for doubling cubes
 	public void DoubleCubes(Player p)
 	{
 		//THIS SCRIPTS CONTROLS  T H E  C U B E S
-		//COMPARED TO IT, YOU ARE NOTHING
+		//COMPARED TO IT, I AM NOTHING
 
         //for every cube, create a new one on top of it
 
@@ -398,10 +364,11 @@ public class GameManager : NetworkBehaviour
         }
 	}
 
+    //powerup for halving cubes
     public void HalveCubes(Player p)
     {
         //THIS SCRIPTS CONTROLS  T H E  C U B E S
-        //COMPARED TO IT, YOU ARE NOTHING
+        //COMPARED TO IT, I AM NOTHING
 
         MagnetizedByPlayer[] cubes = GetPlayerCubes(p);
         int cubesNo = cubes.Length;
@@ -423,6 +390,7 @@ public class GameManager : NetworkBehaviour
         }
     }
 
+    //get cubes in given player's reach
     public MagnetizedByPlayer[] GetPlayerCubes(Player p)
     {
         MagnetizedByPlayer[] cubes = GetComponentsInChildren<MagnetizedByPlayer>();
@@ -457,6 +425,8 @@ public class GameManager : NetworkBehaviour
     //cannot spawn inside walls
     public void SetRandomPos(GameObject obj)
     {
+        //I have for the first coded a useful do-while loop :) (please don't judge)
+        //spawn object in random place. If the object collides with anything, randomize the position again
         do
         {
             Vector2 pos = Arena.GetRandomAvailableSpawnPoint();
@@ -465,6 +435,8 @@ public class GameManager : NetworkBehaviour
         } while(!CanSpawn(obj));
     }
 
+    //Can Object be spawned? Does it collide with anything?
+    //Test agains arena walls
     public bool CanSpawn(GameObject obj)
     {
         bool canSpawn = true;
@@ -495,26 +467,3 @@ public class GameManager : NetworkBehaviour
         return canSpawn;
     }
 }
-
-/*
-for (int i = 0; i < 20; i++) {
-    int indexToSpawn = 1;
-    GameObject spawnObject = SpawnPrefabs[indexToSpawn];
-    GameObject spawnedInstance = Instantiate(spawnObject);
-    spawnedInstance.transform.parent = transform;
-    //mNextSpawn = TimeBetweenSpawns;
-}
-*/
-
-/*
-Vector3 offset = new Vector3(Mathf.Cos(angle) * shieldDistanceFromPlayer, 0.0f, Mathf.Sin(angle) * shieldDistanceFromPlayer);
-//shield.transform.position = transform.position;
-//shield.transform.position = shield.transform.position + offset;
-
-float degrees = Mathf.Atan2(-offset.z, offset.x);
-degrees *= (180 / Mathf.PI);
-//this prevents from rotating wrong way
-
-Vector3 rot = shield.transform.eulerAngles;
-shield.transform.rotation = Quaternion.Euler(rot.x, 0, degrees);
-*/

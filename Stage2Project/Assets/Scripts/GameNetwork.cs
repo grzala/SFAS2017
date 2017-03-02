@@ -4,6 +4,19 @@ using UnityEngine;
 using UnityEngine.Networking;
 using UnityEngine.SceneManagement;
 
+/* This script is responsible for all networking
+ * It Controls the Game and the lobby
+ * I found the default example Lobby in asset store,
+ * however I decided its very confusing and limitating,
+ * so I decided to create my own lobby
+ * 
+ * This may not have been a good idea
+ * Note to self: When using a given game engine for the first time, stick to singleplayer */
+
+/* every connection spawns a LobbyPlayer - information on connection,
+ * player name, color and readiness. When game starts, All lobby players spawn a
+ * game player */
+
 public class GameNetwork : NetworkManager {
 
     [SerializeField]
@@ -20,7 +33,8 @@ public class GameNetwork : NetworkManager {
     private bool inGame = false;
 
 	// Use this for initialization
-	void Start () {
+	void Start () 
+    {
         DontDestroyOnLoad(gameObject);
         UI = GetComponent<LobbyUI>();
         UI.UpdateInfo("offline", "none");
@@ -80,6 +94,7 @@ public class GameNetwork : NetworkManager {
         return !inGame && players.Count < MAX_PLAYERS && IsNameAvailable(lp.name);
 	}
 
+    //Color can be used by at most one player
     private bool IsColorAvailable(int index)
     {
         bool avail = true;
@@ -113,8 +128,8 @@ public class GameNetwork : NetworkManager {
 	}
 	
 	// Update is called once per frame
-	void Update () {
-
+	void Update () 
+    {
         if (!NetworkServer.active)
             return;
         

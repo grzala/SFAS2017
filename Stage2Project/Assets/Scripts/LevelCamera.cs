@@ -2,22 +2,24 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+/* camera always follows the player */
+
 public class LevelCamera : MonoBehaviour {
 
 	private GameObject following;
 	private Vector3 offset;
 
 	// Use this for initialization
-	void Start () {
+	void Start () 
+    {
 		
 	}
 	
 	// Update is called once per frame
-	void Update () {
-
+	void Update () 
+    {
         if (following != null)
         {
-
             Transform target = following.transform;
 
             //follow        

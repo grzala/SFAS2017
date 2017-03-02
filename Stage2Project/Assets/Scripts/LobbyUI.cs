@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
+/* This script controls The UI in multiplayer lobby */
+
 public class LobbyUI : MonoBehaviour {
 
     [SerializeField]
@@ -23,24 +25,27 @@ public class LobbyUI : MonoBehaviour {
     public GameObject list;
 
 	// Use this for initialization
-	void Start () {
+	void Start () 
+    {
         net = GetComponent<GameNetwork>();
         currentPanel = mainPanel;
 	}
 	
 	// Update is called once per frame
-	void Update () {
-
+	void Update ()
+    {
+        //Some canvases overlayed and prevented clicking on other canvases.
         GameObject.Find("TopPanel").GetComponent<GraphicRaycaster>().enabled = GetComponent<Canvas>().enabled;
-
 	}
 
+    //host game
     public void OnClickHost()
     {
         net.networkAddress = "127.0.0.1";
         net.StartHost();
     }
 
+    //join game
     public void OnClickJoin()
     {
         string IP = GameObject.Find("IPField").GetComponent<InputField>().text;
@@ -107,7 +112,6 @@ public class LobbyUI : MonoBehaviour {
                 player.RpcToggleStartBtn(false);
             }
         }
-
     }
 
     public void ToggleStartBtn(bool toggle)
