@@ -2,6 +2,8 @@
 using System.Collections;
 using UnityEngine.SceneManagement;
 
+/* I am not using this */
+
 public class SceneLoader : MonoBehaviour 
 {
 	[SerializeField] private string [] Scenes;

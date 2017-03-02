@@ -2,32 +2,36 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-
+/* when a powerup gets picked up, this script handles applying gameplay modifications */
 
 public class PowerupHandler : MonoBehaviour {
 
     //this is a queue - buff at index 0 is first to be toggled off
     List<Buff> activePowerups = new List<Buff>();
 
+    //How long does a given powerup last?
     Dictionary<Powerup.Type, float> durations = new Dictionary<Powerup.Type, float>();
 
     //buff is an abstract representation of an effect of a powerup
     //holds target and type
     //buff is applied directly to a player
-    public struct Buff {
+    public struct Buff 
+    {
         public Powerup.Type type;
         public Player target;
         public float timeLeft;
     }
 
 	// Use this for initialization
-	void Start () {
+	void Start ()
+    {
         PopulateDurations();
 	}
 
     private void PopulateDurations()
     {
-        //if 
+        //Some powerups are instantenous, without need for time
+        //However, they should be in this dictionary to prevent NULL pointers
         durations.Add(Powerup.Type.SPEED_UP, 5.0f);
         durations.Add(Powerup.Type.SLOW_DOWN, 5.0f);
         durations.Add(Powerup.Type.INVERSE, 3.0f);
@@ -36,21 +40,19 @@ public class PowerupHandler : MonoBehaviour {
     }
 	
 	// Update is called once per frame
-	void Update () {
-        updateTimes();
-
+	void Update () 
+    {
+        UpdateTimes();
         DeactivateInactivePowerups();
-		
 	}
 
-    private void updateTimes()
+    private void UpdateTimes()
     {
         for (int i = 0; i < activePowerups.Count; i++)
         {
             Buff b = activePowerups[i];
             b.timeLeft -= Time.deltaTime;
             activePowerups[i] = b;
-            //print(activePowerups[i].timeLeft);
         }
     }
 
@@ -68,6 +70,7 @@ public class PowerupHandler : MonoBehaviour {
     {
         List<Player> targets = new List<Player>();
 
+        //Decide who the powerup gets applied to
         if (target == Powerup.Target.SELF) //player passed as argument
         {
             targets = new List<Player>();
@@ -79,6 +82,7 @@ public class PowerupHandler : MonoBehaviour {
             targets.Remove(player);
         }
 
+        //apply powerup to targers
         foreach (Player t in targets)
         {
             Buff b = CreateBuff(type, t);
@@ -86,7 +90,7 @@ public class PowerupHandler : MonoBehaviour {
             AddBuff(b);
         }
     }
-
+        
     public Buff CreateBuff(Powerup.Type type, Player target)
     {
         Buff b;
@@ -95,9 +99,9 @@ public class PowerupHandler : MonoBehaviour {
         b.timeLeft = durations[b.type];
 
         return b;
-
     }
 
+    //turn powerup modifier on/off
     public void TogglePowerup(Buff b, bool toggle)
     {
 
@@ -133,9 +137,11 @@ public class PowerupHandler : MonoBehaviour {
 
     }
 
+    //add buff to queue
     public void AddBuff(Buff b)
     {
         //if there is already such a buff, remove it, and then add later at appropriate index
+        //We don't want to duplicate effects, but to prolong them
         int toRemove = -1;
         for (int i = 0; i < activePowerups.Count; i++)
         {
@@ -161,10 +167,8 @@ public class PowerupHandler : MonoBehaviour {
 
         while (index <= activePowerups.Count)
         {
-            
             if (index == activePowerups.Count || activePowerups[index].timeLeft > b.timeLeft)
                 break;
-
             index++;
         }
 

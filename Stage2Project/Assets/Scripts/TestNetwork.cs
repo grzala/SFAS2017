@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Networking;
 
+/* This allows to test gameplay when Starting game from the "Game" scene. Speeds up the development 
+ * as there is no need to always start from UI scene. */
+
 public class TestNetwork : NetworkManager {
 
 	// Use this for initialization
