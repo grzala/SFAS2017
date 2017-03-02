@@ -37,12 +37,13 @@ public class LobbyUI : MonoBehaviour {
 
     public void OnClickHost()
     {
+        net.networkAddress = "localhost";
         net.StartHost();
     }
 
     public void OnClickJoin()
     {
-        net.networkAddress = "192.168.0.5";
+        net.networkAddress = GameObject.Find("IPField").GetComponent<InputField>().text;
         net.StartClient();
     }
 
@@ -76,7 +77,6 @@ public class LobbyUI : MonoBehaviour {
     {
         foreach (LobbyPlayer lp in clients)
         {
-            print("oo");
             lp.RpcGameUI();
         }
     }
