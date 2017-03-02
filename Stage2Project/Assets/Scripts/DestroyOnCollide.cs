@@ -3,6 +3,11 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Networking;
 
+/* things like bullets and powerups must be destroyed after they collide
+ * they are destroyed after few frames
+ * powerups must be alive for at least one frame after collision for their effects to be
+ * applied */
+
 public class DestroyOnCollide : MonoBehaviour {
 
     bool toDestroy = false;

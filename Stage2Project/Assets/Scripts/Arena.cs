@@ -60,7 +60,6 @@ public class Arena : MonoBehaviour
             toret.Add(child.gameObject);
         }
 
-
         return toret;
     }
 }
