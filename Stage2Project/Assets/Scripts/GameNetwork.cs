@@ -45,10 +45,6 @@ public class GameNetwork : NetworkManager {
         LobbyPlayer lp = (LobbyPlayer)Instantiate(LobbyPlayerPrefab).GetComponent<LobbyPlayer>();
         lp.transform.SetParent(UI.list.transform, false);
 
-        NetworkServer.SpawnWithClientAuthority(lp.gameObject, conn);
-
-        lp.RpcGetNameFromInput();
-
         lp.connectionId = conn.connectionId;
 
         if (adminId < 0 || players.Count < 1)
@@ -60,6 +56,8 @@ public class GameNetwork : NetworkManager {
 
         players.Add(lp);
         connections.Add(conn, playerControllerId);
+        NetworkServer.SpawnWithClientAuthority(lp.gameObject, conn);
+        lp.RpcGetNameFromInput();
        
     }
 

@@ -37,13 +37,16 @@ public class LobbyUI : MonoBehaviour {
 
     public void OnClickHost()
     {
-        net.networkAddress = "localhost";
+        net.networkAddress = "127.0.0.1";
         net.StartHost();
     }
 
     public void OnClickJoin()
     {
-        net.networkAddress = GameObject.Find("IPField").GetComponent<InputField>().text;
+        string IP = GameObject.Find("IPField").GetComponent<InputField>().text;
+        if (IP == "localhost" || IP == "")
+            IP = "127.0.0.1";
+        net.networkAddress = IP;
         net.StartClient();
     }
 

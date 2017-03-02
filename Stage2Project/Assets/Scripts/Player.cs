@@ -79,8 +79,6 @@ public class Player : NetworkBehaviour
         GameObject.Find("LevelCamera").GetComponent<LevelCamera>().Follow(this.gameObject);
         //shield = NetworkServer.FindLocalObject(shieldId).GetComponent<Shield>();
         //shield.transform.parent = transform;
-
-        hud = GameObject.Find("HUD").GetComponent<HUD>();
         shotsLeft = SHOTS_PER_RELOAD;
         shieldingTimeLeft = SHIELDING_TIME;
     }
@@ -131,6 +129,7 @@ public class Player : NetworkBehaviour
     {
         if (isLocalPlayer)
         {
+            hud = GameObject.Find("HUD").GetComponent<HUD>();
             if (!initialized)
             {
                 CmdSetName(name);
@@ -354,6 +353,6 @@ public class Player : NetworkBehaviour
 	[ClientRpc]
 	public void RpcSetTimeLeft(string time)
 	{
-		hud.setTimeLeft(time);
+        GameObject.Find("HUD").GetComponent<HUD>().setTimeLeft(time);
 	}
 }
