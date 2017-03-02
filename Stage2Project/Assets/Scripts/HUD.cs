@@ -36,4 +36,10 @@ public class HUD : MonoBehaviour {
         Text text = transform.Find("ScoreCount").GetComponent<Text>();
         text.text = "Score: " + score.ToString();
     }
+
+    public void setTimeLeft(string time)
+    {
+        Text text = transform.Find("TimeCount").GetComponent<Text>();
+        text.text = "Time Left: " + time;
+    }
 }

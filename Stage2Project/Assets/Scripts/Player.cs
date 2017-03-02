@@ -350,4 +350,10 @@ public class Player : NetworkBehaviour
     {
         transform.position = pos;
     }
+
+	[ClientRpc]
+	public void RpcSetTimeLeft(string time)
+	{
+		hud.setTimeLeft(time);
+	}
 }

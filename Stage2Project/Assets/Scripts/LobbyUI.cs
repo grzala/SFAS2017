@@ -42,6 +42,7 @@ public class LobbyUI : MonoBehaviour {
 
     public void OnClickJoin()
     {
+        net.networkAddress = "192.168.0.5";
         net.StartClient();
     }
 

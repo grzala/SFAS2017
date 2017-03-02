@@ -126,12 +126,22 @@ public class GameManager : NetworkBehaviour
 
     private void UpdatePlayers()
     { 
+		string timeString;
+		float timeLeft = gameTime - timePassed;
+		string minutes = ((int)(timeLeft / 60)).ToString();
+		string seconds = ((int)(timeLeft % 60)).ToString();
+		if (seconds.Length < 2)
+			seconds = "0" + seconds;
+		timeString = minutes + ":" + seconds;
+
         foreach (Player player in players)
         {
             if (player == null)
             {
                 continue;
             }
+
+			player.RpcSetTimeLeft(timeString);
 
             //UPDATE CUBES
             player.cubesLeft = GetPlayerCubes(player).Length;
